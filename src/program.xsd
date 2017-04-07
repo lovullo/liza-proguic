@@ -1,0 +1,1887 @@
+<?xml version="1.0"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.lovullo.com"
+  xmlns="http://www.lovullo.com"
+  xmlns:lv="http://www.lovullo.com"
+  xmlns:assert="http://www.lovullo.com/assert"
+  elementFormDefault="qualified">
+
+<!-- this schema supports assertions -->
+<xs:import
+  namespace="http://www.lovullo.com/assert"
+  schemaLocation="../assert/assert.xsd" />
+
+<xs:simpleType name="lineCode">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Personal or Commercial lines
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="PL" />
+    <xs:enumeration value="CL" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="programId">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      An all-lowercase Unix-like ID used to uniquely identify a program.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:NCName">
+    <!-- must be a valid variable name -->
+    <xs:pattern value="[a-z0-9\-]+" />
+    <xs:minLength value="2" />
+    <xs:maxLength value="50" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="nonEmptyTokenType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      An all-lowercase Unix-like ID used to uniquely identify a program.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:token">
+    <!-- must be a valid variable name -->
+    <xs:pattern value=".+" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="refId">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      A generic id. The allowed characters are similar to those allowed in
+      variable names for most C-style programming languages.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:string">
+    <!-- must be a valid variable name -->
+    <xs:pattern value="[a-zA-Z_][a-zA-Z0-9_\[\]]+" />
+    <xs:minLength value="2" />
+    <xs:maxLength value="50" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="apiId">
+  <xs:restriction base="xs:NCName">
+    <!-- distinguish slightly from refId -->
+    <xs:pattern value="[a-zA-Z-][a-zA-Z0-9-]+" />
+    <xs:minLength value="2" />
+    <xs:maxLength value="50" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="apiParamName">
+  <xs:restriction base="xs:NCName">
+    <!-- camelCase -->
+    <xs:pattern value="[a-zA-Z][a-zA-Z0-9_-]+" />
+    <xs:minLength value="2" />
+    <xs:maxLength value="50" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="stepTypes">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Determines how the step will be rendered and processed.  The
+      interpretation of this type is parser-dependent. See the documentation for
+      the parser implementation (e.g. XSLT) for more information.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:token">
+    <xs:enumeration value="default" />
+    <xs:enumeration value="review" />
+    <xs:enumeration value="summary" />
+    <xs:enumeration value="manage" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="groupStyles">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Types representing various rendering methods for groups.  The
+      interpretation of this type is parser-dependent. See the documentation for
+      the parser implementation (e.g. XSLT) for more information.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:token">
+    <xs:enumeration value="flat" />
+    <xs:enumeration value="wide" />
+    <xs:enumeration value="table" />
+    <xs:enumeration value="sidetable" />
+    <xs:enumeration value="collapsetable" />
+    <xs:enumeration value="tabbed" />
+    <xs:enumeration value="tabbedblock" />
+    <xs:enumeration value="accordion" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="questionTypes">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Provides rendering, validation and processing instructions to the parser.
+      The interpretation of this type is parser-dependent. See the documentation
+      for the parser implementation (e.g. XSLT) for more information.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:token">
+    <xs:enumeration value="name" />
+    <xs:enumeration value="initial" />
+    <xs:enumeration value="csr" />
+    <xs:enumeration value="dba" />
+    <xs:enumeration value="address" />
+    <xs:enumeration value="nonPoBoxAddress" />
+    <xs:enumeration value="city" />
+    <xs:enumeration value="state" />
+    <xs:enumeration value="zip" />
+    <xs:enumeration value="phone" />
+    <xs:enumeration value="email" />
+
+    <xs:enumeration value="status" />
+    <xs:enumeration value="personalId" />
+
+    <xs:enumeration value="text" />
+    <xs:enumeration value="textarea" />
+    <xs:enumeration value="explain" />
+    <xs:enumeration value="currency" />
+    <xs:enumeration value="date" />
+    <xs:enumeration value="dollars" />
+    <xs:enumeration value="float" />
+    <xs:enumeration value="manualDate" />
+    <xs:enumeration value="shortDate" />
+    <xs:enumeration value="ccExpDate" />
+    <xs:enumeration value="ccNumber" />
+    <xs:enumeration value="number" />
+    <xs:enumeration value="noyes" />
+    <xs:enumeration value="radio" />
+    <xs:enumeration value="legacyradio" />
+    <xs:enumeration value="year" />
+    <xs:enumeration value="select" />
+    <xs:enumeration value="url" />
+    <xs:enumeration value="percent" />
+    <xs:enumeration value="char" />
+    <xs:enumeration value="cvv2" />
+
+    <xs:enumeration value="button" />
+    <xs:enumeration value="submit" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="displayOnlyTypes">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Types that are available for display only.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:token">
+    <xs:enumeration value="limit" />
+    <xs:enumeration value="multilimit" />
+    <xs:enumeration value="multitext" />
+    <xs:enumeration value="deductible" />
+    <xs:enumeration value="acceptReject" />
+    <xs:enumeration value="includeExclude" />
+    <xs:enumeration value="limitReject" />
+    <xs:enumeration value="dateTime" />
+    <xs:enumeration value="waitable" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="displayTypes">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      All types available for display or for questions.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:union memberTypes="questionTypes displayOnlyTypes" />
+</xs:simpleType>
+
+<xs:group name="elements">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Elements permitted within a group
+    </xs:documentation>
+  </xs:annotation>
+  <xs:choice>
+    <xs:element name="question" type="questionElement">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Requests information from the user.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+    <xs:element name="external" type="externalType" minOccurs="0" maxOccurs="unbounded">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          External data definition; permitted within groups for organization
+          purposes.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+    <xs:element name="question-copy" type="questionElementCopy">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Duplicates an existing question to display in another location.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+    <xs:element name="answer" type="answerElement">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Displays the answer to a previously answered question.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+    <xs:element name="display" type="displayElement">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Describes how to represent a bucket value.
+
+          Display elements simply label and style bucket values. Any value in
+          the bucket may be displayed using lv:display.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+    <xs:element name="static" type="staticElement">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Displays static text or XHTML.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:any namespace="##other" processContents="skip" />
+  </xs:choice>
+</xs:group>
+
+<xs:complexType name="setType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Denotes a set of elements (not supported by all group styles)
+    </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+    <xs:group ref="elements" minOccurs="1" maxOccurs="unbounded" />
+  </xs:sequence>
+  <xs:attribute name="class" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Classes to apply to the generated set
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="each" type="xs:string" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Space-delimited list of set prefixes. Generated ids will contain the
+        prefix, followed by an underscore and the element ref/id.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="permitRef" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        If set to true, will also add a placeholder equivalent to @ref (without
+        any prefix), permitting it to appear in the bucket without being
+        filtered out server-side.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="header" type="xs:boolean" />
+</xs:complexType>
+
+<xs:group name="elementsOrSet">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Must specify an element or set of elements
+    </xs:documentation>
+  </xs:annotation>
+  <xs:choice>
+    <xs:element name="set" type="setType" />
+    <xs:group ref="elements" />
+  </xs:choice>
+</xs:group>
+
+<xs:simpleType name="calcMethods">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Allowed methods for calculated values
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:token">
+    <xs:enumeration value="append" />
+    <xs:enumeration value="join" />
+    <xs:enumeration value="if" />
+    <xs:enumeration value="void" />
+    <xs:enumeration value="copy" />
+    <xs:enumeration value="sum" />
+    <xs:enumeration value="range" />
+    <xs:enumeration value="length" />
+    <xs:enumeration value="count" />
+    <xs:enumeration value="countNonEmpty" />
+    <xs:enumeration value="multiply" />
+    <xs:enumeration value="subtract" />
+    <xs:enumeration value="add" />
+    <xs:enumeration value="divide" />
+    <xs:enumeration value="date" />
+    <xs:enumeration value="relativeDate" />
+    <xs:enumeration value="month" />
+    <xs:enumeration value="year" />
+    <xs:enumeration value="isIn" />
+    <xs:enumeration value="minPos" />
+    <xs:enumeration value="maxPos" />
+    <xs:enumeration value="dateDiff" />
+    <xs:enumeration value="identical" />
+    <xs:enumeration value="split" />
+    <xs:enumeration value="keyValue" />
+    <xs:enumeration value="max" />
+    <xs:enumeration value="min" />
+    <xs:enumeration value="match" />
+    <xs:enumeration value="test" />
+    <xs:enumeration value="testNot" />
+    <xs:enumeration value="uniq" />
+    <xs:enumeration value="userAgent" />
+    <xs:enumeration value="implode" />
+    <xs:enumeration value="position" />
+    <xs:enumeration value="value" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:complexType name="calculatedValueType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Calculates a value for later reference in assertions or to store in the bucket
+    </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="id" type="refId" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Id in which to store calculated value
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="ref" type="refId">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Element to reference when calculating the value
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="method" type="calcMethods" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Method to perform in order to calculate the value
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="value" type="xs:token">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Value to pass as an argument to the method
+
+        If the value is not within single quotes, then it is interpreted as a
+        reference to another id.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="store" type="xs:boolean" default="false">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Whether to save the calculated value as if it were a question
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+
+<xs:complexType name="groupSetType">
+  <xs:sequence>
+      <xs:any namespace="##any" minOccurs="0" maxOccurs="unbounded" processContents="lax" />
+  </xs:sequence>
+
+  <xs:attribute name="id" type="refId" use="required" />
+</xs:complexType>
+
+
+<xs:group name="anyGroup">
+  <xs:choice>
+    <xs:element name="group" type="group" minOccurs="0" maxOccurs="unbounded">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Group of elements to be displayed.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+    <xs:element name="group-set" type="groupSetType" minOccurs="0" maxOccurs="unbounded">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Generate a set of groups
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+  </xs:choice>
+</xs:group>
+
+
+<xs:complexType name="importType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Imports a Calc DSL package for use in the generated UI packge.
+
+      This allows the use of, for example, classifications as predicates for
+      question display.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="package" type="xs:string" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Path to package
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+
+<xs:complexType name="step">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      A program is composed of a series of steps that contain a series of
+      groups. A step is a conceptual representation indicating distinct sections
+      of data. The actual representation of the steps is implementation
+      dependent. See the documentation for the parser (e.g. XSLT) for more
+      information on how steps are presented to the user.
+    </xs:documentation>
+    <xs:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <strong>Example</strong>
+      <pre class="example">
+        <![CDATA[
+          <program ...>
+            <step title="History">
+              <!-- ... -->
+            </step>
+            <step title="Review" type="summary">
+              <!-- ... -->
+            </step>
+          </program>
+        ]]>
+      </pre>
+    </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+    <xs:element name="trigger" minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Requires onEvent attribute on the trigger, since there is no parent
+            assertion to dictate when the trigger should be run.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+          <xs:extension base="triggerType">
+            <xs:attribute name="onEvent" type="xs:token" use="required">
+              <xs:annotation>
+                <xs:documentation xml:lang="en">
+                  Event to trigger this trigger on
+                </xs:documentation>
+              </xs:annotation>
+            </xs:attribute>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="calc" type="calculatedValueType" minOccurs="0" maxOccurs="unbounded" />
+    <xs:element ref="assert:assertion" minOccurs="0" maxOccurs="unbounded" />
+    <xs:element name="script" type="scriptType" minOccurs="0" maxOccurs="unbounded" />
+    <xs:group ref="anyGroup" minOccurs="1" maxOccurs="unbounded" />
+  </xs:sequence>
+  <xs:attribute name="title" type="xs:string" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Title to be displayed to user.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="type" type="stepTypes" default="default">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        States how step should be rendered and processed. Implementation depends
+        entirely upon the processor.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="allowDiscard" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Determines whether the user will be prompted to save or discard step
+        data when using ambiguous navigation; defaults to true.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+<!-- Permits JS within the XML -->
+<xs:complexType name="scriptType" mixed="true">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Sometimes a script is the more concise way to express a portion of code.
+      This helps to break out of the limitations of the XML, but should only be
+      used when absolutely necessary. On many occasions, adding features to the
+      XML may be more appropriate.
+
+      Large, complex scripts should be placed in a separate file and simply
+      referred to by the XML, perhaps by using this element to reference the
+      external script.
+
+      Enclose script within a CDATA tag. Script must be written in JavaScript
+      and will have the bucket exposed to it as the variable 'bucket'.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="onEvent" type="xs:token" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Event to trigger the script on
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+<!--
+  Groups needn't contain an id or title, since they can be anonymous in order
+  to hold, for example, lower buttons (continue/back)
+-->
+<xs:complexType name="group">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Groups exist within steps and represent a logical grouping of elements.
+      How groups are rendered is dependent on the parser. Please refer to the
+      parser (e.g. XSLT) documentation for more information on how groups are
+      rendered.
+    </xs:documentation>
+    <xs:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <strong>Example</strong>
+      <pre class="example">
+        <![CDATA[
+          <step title="History">
+            <group title="Prior Losses" style="tabbed">
+              <!-- ... -->
+            </group>
+          </step>
+        ]]>
+      </pre>
+    </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+    <xs:element name="prop" minOccurs="0" maxOccurs="unbounded">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Group property
+        </xs:documentation>
+      </xs:annotation>
+      <xs:complexType mixed="true">
+        <xs:sequence>
+          <xs:group ref="elements" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:token">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Name of the property
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:complexType>
+    </xs:element>
+    <xs:element ref="assert:assertion" minOccurs="0" maxOccurs="unbounded" />
+    <xs:group ref="elementsOrSet" minOccurs="1" maxOccurs="unbounded" />
+  </xs:sequence>
+  <xs:attribute name="id" type="refId">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Unique id used to identify group.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="title" type="xs:normalizedString">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Title displayed to user for the group.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <!-- todo: rename to max/min/defaultCount? -->
+  <xs:attribute name="minRows" type="xs:int">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Minimum number of answers to accept for each question in the group (if
+        supported by the group style).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="maxRows" type="xs:int">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Maximum number of answers to accept for each question in the group (if
+        supported by the group style).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <!-- todo: change to type? -->
+  <xs:attribute name="style" type="groupStyles" default="flat">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Style used by the processor when rendering the group. Note that not all
+        style support all functionality (for example, the 'flat' style does not
+        support multiple answers per question).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="identifier" type="xs:normalizedString">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        The name of the field within the group to be used as the heading for
+        the group pane.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="prefix" type="xs:normalizedString">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Prefix to apply to tabs if selected style supports tabbing.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="locked" type="xs:boolean" default="false">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        When locked, rows cannot be added or removed.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="class" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Classes to apply to the generated element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="link" type="refId">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Links multiple groups together so that adding/removing indexes from one
+        will add/remove them respectively from the others
+
+        The value should be the name of the link to add the group to. Links
+        needn't be defined. To link groups together, simply share the same link
+        name.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="indexedBy" type="refId">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Identifier of field that shall determine the number of indexes in the
+        group.
+
+        This defaults to the first available identifier in the group.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+
+<xs:complexType name="dataApiType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Defines an API call that may be used to request data with which a question
+      element may be populated
+
+      The API call is made once all required arguments are non-empty and the
+      call is made each time any of the arguments would change. If an argument
+      becomes empty, the field will reset it self to its default, empty state.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:sequence>
+    <xs:element name="unless-set" minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:attribute name="ref" type="refId" use="required">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              API call should not be performed if the referenced field is
+              already non-empty.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="value" minOccurs="1" maxOccurs="1">
+      <xs:complexType>
+        <xs:attribute name="from" type="apiParamName" use="required">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Param to map to the question value
+
+              If the question type is a select, then each value will be used as
+              an individual option.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="label" minOccurs="0" maxOccurs="1">
+      <xs:complexType>
+        <xs:attribute name="from" type="apiParamName" use="required">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Param to use as the label instead of the value
+
+              This is optional and valid only for question types that make a
+              distinction between display value and actual bucket value; the
+              label, if provided, will be displayed instead of the value.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="map" minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:attribute name="param" type="apiParamName" use="required">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Param to be mapped
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="into" type="refId" use="required">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Reference id used to map the value into the bucket
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+
+  <xs:attribute name="source" type="xs:NCName" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        API identifier
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <!-- all other attributes will be considered to be arguments to the API -->
+  <xs:anyAttribute namespace="##any" processContents="skip" />
+</xs:complexType>
+
+
+<!--action-->
+  <xs:simpleType name="actionType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Supported element action hooks
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="click" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="actionStyleType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Supported element action hook styles
+
+        Default is "none", which will hook the element itself.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="button" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="actionElement">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Hook actions on various elements to trigger events
+
+        Actions can be styled (e.g. as buttons), so they need not take place on
+        the element itself.
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:sequence>
+      <xs:element name="trigger" type="triggerType" minOccurs="1" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Events to trigger upon action
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+
+    <xs:attribute name="on" type="actionType" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Name of action to hook
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="style" type="actionStyleType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Style to apply to action hook (e.g. style as a button to be clicked)
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="desc" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Action description as documentation; used as display for certain styles
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+<!--/action-->
+
+
+<xs:complexType name="questionElement">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      An element designed for gathering user input.
+    </xs:documentation>
+    <xs:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <strong>Example</strong>
+      <pre class="example">
+        <![CDATA[
+          <question
+            type="address"
+            id="insured_address"
+            label="Address"
+            required="true" />
+        ]]>
+      </pre>
+    </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+    <xs:element ref="assert:assertion" minOccurs="0" maxOccurs="unbounded" />
+    <xs:element name="help" minOccurs="0" maxOccurs="unbounded">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Help text displaying additional information about the question
+        </xs:documentation>
+      </xs:annotation>
+      <xs:complexType mixed="true">
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="action" type="actionElement" minOccurs="0" maxOccurs="unbounded">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Hook and style actions associated with a question element
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="data" type="dataApiType" minOccurs="0" maxOccurs="1">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Use an external resource to populate this field
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="option" type="questionElementOption"
+      minOccurs="0" maxOccurs="unbounded" >
+
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Valid options for this question (if supported by question type).
+        </xs:documentation>
+      </xs:annotation>
+    </xs:element>
+  </xs:sequence>
+
+  <xs:attribute name="type" type="questionTypes" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Type of question to be displayed and validated against.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="id" type="refId" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Id used to reference the element. This is should be used when generating
+        the form element name and may be used to give the element an id for DOM
+        manipulation.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="label" type="xs:normalizedString">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Text to display to the user
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="subLabel" type="xs:normalizedString">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Additional information regarding the question.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="elementLabel" type="xs:normalizedString">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Label to wrap the actual element with, if supported by the question type
+        (e.g. radio labels).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="required" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Whether the question must be answered before continuing.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="default" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Optional default value for the question
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="hidden" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Whether the question should be hidden by default.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <!-- todo: remove and use answer instead? -->
+  <xs:attribute name="readonly" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Whether the value of the question can be modified by default. Please
+        note that this should apply to client side only. Another value may still
+        be posted to the server. If the value should be truly read-only, it is
+        not a question - use static or answer elements instead.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="class" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Classes to apply to the generated element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="when" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Element will be displayed only when matching each of the given
+        classifications
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="retain" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        When true, field will retain its value when hidden due to a
+        classification (the default action is to clear)
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="internal" type="xs:boolean" default="false">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        If true, the question is only available internally
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="secure" type="xs:boolean" default="false">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        If true, data will be encrypted before being stored in the database
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="value" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Used by certain fields (such as radios) to set the value of the element.
+        Only recognized by certain question types. The 'default' attribute is
+        likely more appropriate for your uses.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="defaultTo" type="refId">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Default the value to the value of the given question when it is first
+        changed, so long as the value of this question is empty.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <!-- TODO: enum -->
+  <xs:attribute name="kickback" type="xs:string" default="keep">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        When set to "clear", will set to default value on kickback
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+
+<xs:complexType name="externalType">
+  <xs:attribute name="type" type="displayTypes">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Type of external data to be displayed and validated against. If
+        unspecified, the external reference should be used only for data
+        storage---its interpretation within the UI is undefined.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="id" type="refId" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Id used to reference the external data.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="internal" type="xs:boolean" default="false">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        If true, the question is only available internally
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+<xs:complexType name="questionElementOption">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Represents an option for question types that support predefined
+      selections.
+
+      NOTE: Some elements may support a text value of "-", which will be
+      replaced by the value attribute.
+    </xs:documentation>
+    <xs:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <strong>Example</strong>
+      <pre class="example">
+        <![CDATA[
+          <question type="select" id="make" label="Make">
+            <!-- ... -->
+            <option value="5">Ford</option>
+            <option value="6">GM</option>
+            <option value="7" default="true">Toyota</option>
+            <!-- ... -->
+          </question>
+        ]]>
+      </pre>
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:simpleContent>
+    <xs:extension base="xs:string">
+      <xs:attribute name="default" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Option should be selected by default.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="value" type="nonEmptyTokenType">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Value of option to be posted to the server (not the display text).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="when" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Option will be displayed only when matching each of the given
+            classifications
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:extension>
+  </xs:simpleContent>
+</xs:complexType>
+
+<!--
+  separate element type needed for validation purposes; XSD 1.0 limitations
+-->
+<xs:complexType name="questionElementCopy">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Duplicates an existing question, allowing it to be presented in multiple
+      locations. The question must have already been defined previously in the
+      document.
+    </xs:documentation>
+    <xs:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <strong>Example</strong>
+      <pre class="example">
+        <![CDATA[
+          <question-copy ref="insured_address" />
+        ]]>
+      </pre>
+    </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+    <xs:element ref="assert:assertion" minOccurs="0" maxOccurs="unbounded" />
+  </xs:sequence>
+  <xs:attribute name="ref" type="refId" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Id of existing question element to duplicate.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="value" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Used by certain fields (such as radios) to set the value of the element.
+        Only recognized by certain question types.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="elementLabel" type="xs:normalizedString">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Label to wrap the actual element with, if supported by the question type
+        (e.g. radio labels) and if the label is to be different than the
+        original question.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="class" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Override class of copied question
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="hidden" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Hide the question by default
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="when" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Element will be displayed only when matching each of the given
+        classifications
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+<xs:complexType name="answerElement">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Displays the value of a previously &quot;answered&quot; question.
+    </xs:documentation>
+    <xs:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <strong>Example</strong>
+      <pre class="example">
+        <![CDATA[
+          <answer ref="insured_address" />
+        ]]>
+      </pre>
+    </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="id" type="refId">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Optional id to give to answer element. Answer elements should never be
+        posted on form submissions. Instead the id would serve as a reference
+        for DOM manipulation.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="ref" type="refId" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Id of question element from which to retrieve the answer data.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="label" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Allows overriding the label of the target question.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="index" type="xs:int">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Optional index to use for all instances, overriding the automatic index
+        corresponding to the answer index.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="class" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Classes to apply to the generated element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="when" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Element will be displayed only when matching each of the given
+        classifications
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="internal" type="xs:boolean" default="false">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Element will only be displayed internally
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+<xs:complexType name="displayElement">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Displays the value that is not associated with a question.
+    </xs:documentation>
+    <xs:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <strong>Example</strong>
+      <pre class="example">
+        <![CDATA[
+          <lv:display ref="foo" label="Foo Bar" type="text" />
+        ]]>
+      </pre>
+    </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="id" type="refId">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Optional identifier to reference display element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="ref" type="refId" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Id of data to display. This will also be used as the element id.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="label" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Label to apply to the display.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="type" type="displayTypes">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Question type to mimic (used for styling).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="default" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Default value to display if value is an empty string or undefined.
+        If this display occurs in a set, multiple values should be delimited by
+        pipes.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="class" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Classes to apply to the generated element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="when" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Element will be displayed only when matching each of the given
+        classifications
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="internal" type="xs:boolean" default="false">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Element will only be displayed internally
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="allow-html" type="xs:boolean" default="false">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Whether to allow HTML rendering (otherwise escaped)
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+<xs:complexType name="staticElement" mixed="true">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Represents static data (such as text or HTML) to be displayed in place of
+      another element.
+    </xs:documentation>
+    <xs:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <strong>Example</strong>
+      <pre class="example">
+        <![CDATA[
+          <static>This text will be displayed to the user as-is.</static>
+          <static>]]>
+            &lt;![CDATA[This text &lt;em&gt;contains HTML&lt;/em&gt;]]&gt;
+          <![CDATA[</static>
+        ]]>
+      </pre>
+    </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+    <xs:any namespace="##any" processContents="lax"
+      minOccurs="0" maxOccurs="unbounded" />
+  </xs:sequence>
+
+  <xs:attribute name="id" type="refId">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        An id that may be used to reference the static element just a question
+        element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="class" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Classes to apply to the generated element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="when" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Element will be displayed only when matching each of the given
+        classifications
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+
+<xs:complexType name="apiStaticReturnType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Defines a set of items to be prepended to the server result set
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:sequence>
+    <xs:element name="item" minOccurs="1" maxOccurs="unbounded">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Defines a static element to be prepended to the server result set
+        </xs:documentation>
+      </xs:annotation>
+
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="value" minOccurs="1" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">
+                A static value to be assigned to a param
+              </xs:documentation>
+            </xs:annotation>
+
+            <xs:complexType mixed="true">
+              <xs:attribute name="param" type="apiParamName" use="required">
+                <xs:annotation>
+                  <xs:documentation xml:lang="en">
+                    Param to which this value should be assigned
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:attribute>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+
+  <xs:attribute name="nonempty" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        When set to "true", the static data should be used only if the result
+        set from the server is non-empty.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="multiple" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        When set to "true", the static data should be used only if the result
+        set from the server returns more than 1 result.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+</xs:complexType>
+
+
+<xs:complexType name="apiType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Describes an API that may be used as an external data source.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:sequence>
+    <xs:element name="param" minOccurs="0" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:attribute name="name" type="apiParamName" use="required">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Declares a param that is accepted by the API
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="value" type="xs:string">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              An optional default value should an argument not be provided by
+              the caller
+
+              The value may be a string literal if enclosed within single
+              quotes. Otherwise, the value should be a reference.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="returns" minOccurs="1" maxOccurs="1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="param" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="name" type="apiParamName" use="required">
+                <xs:annotation>
+                  <xs:documentation xml:lang="en">
+                    Declares a param that should be populated by the server
+
+                    If the server does not return a value for a parameter, it
+                    should represent an error condition.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:attribute>
+
+              <xs:attribute name="desc" type="xs:string" use="required">
+                <xs:annotation>
+                  <xs:documentation xml:lang="en">
+                    Return parameter description; purely for documentation
+
+                    Enter a short phrase describing what the param represents.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:attribute>
+            </xs:complexType>
+          </xs:element>
+
+          <xs:element name="static" type="apiStaticReturnType" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+              <xs:documentation xml:lang="en">
+                Prepend data to the server response set
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+
+  <xs:attribute name="id" type="apiId" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Unique identifier used to reference the API
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="type" type="xs:NCName" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        API type (currently only "rest" is supported)
+
+        This permits any type of API to be represented by the same definition;
+        if a service changes from REST to SOAP (those poor misguided fools),
+        then no problem.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="source" type="xs:string" use="required">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Remote datasource definition.
+
+        For RESTful services, this will be a URL. If the service is on the same
+        domain, use absolute paths relative to the root (e.g. /foo/bar for
+        domain.com/foo/bar)---do not use relative paths.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="method" type="xs:NCName">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Service-type-dependent communication method
+
+        For RESTful services: "get" or "post". RESTful services do sometimes
+        support others (e.g. "put", "delete", etc); they may be added if
+        needed.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:attribute name="combined" type="xs:boolean">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        When true, will combine all indexes into a single request. Consequently,
+        the return data will be duplicated across all indexes sharing the data
+        set.
+
+        This is false by default, yielding unique data sets for each index.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+
+<xs:element name="program">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      The program node represents a single online rater. It is the root node;
+      there may be only one program per XML document. Programs may contain only
+      steps.
+
+      The program element itself contains only basic information about the
+      rater. It should also contain the document namespaces and the
+      schemaLocation definition.
+    </xs:documentation>
+    <xs:documentation xmlns="http://www.w3.org/1999/xhtml">
+      <strong>Example</strong>
+      <pre class="example">
+        <![CDATA[
+          <program
+            xmlns="http://www.lovullo.com"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.lovullo.com program.xsd"
+
+            id="artisan"
+            title="Artisan Contractors"
+            description="Rater for the artisan sub code"
+            line="CL">
+
+            <!-- ... -->
+          </program>
+        ]]>
+      </pre>
+    </xs:documentation>
+  </xs:annotation>
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="include" type="includeType" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Includes external resources in the compiled output.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="import" type="importType" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Import Calc DSL package into generated UI package.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="api" type="apiType" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Defines an API that may be used as a data source
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="external" type="externalType" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            External data definition.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="step" type="step" minOccurs="1" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Represents a single step in the program
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="sidebar" type="sidebarType" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            Contents of sidebar specific to this program
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="id" type="programId" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Unix-like id for the program (lowercase, word characters). The id will
+          be used by the website within the URL to reference the rater.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="title" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Display name to be shown to users
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="description" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Short description of the rater
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="line" type="lineCode" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Line code</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="ineligibleLockCount" type="xs:int" default="0">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Sets the number of suppliers that may be ineligible before the system
+          should automatically lock the quote.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="unlockable" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          If set to true, the GUI should permit unlocking the quote for
+          modification when logged in as an internal user.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="classifier" type="xs:string" default="">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Module to be used as the global classifier
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="c1-import-path" type="xs:string" default="">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          URI relative to root for C1 import request.
+
+          Expects support for <tt>qid</tt> and <tt>pid</tt> params.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- question id should be unique across entire document -->
+  <xs:key name="questionIdKey">
+    <xs:selector xpath="lv:step/lv:group/lv:question" />
+    <xs:field    xpath="@id" />
+  </xs:key>
+  <!-- question copies should reference an existing question id -->
+  <xs:keyref name="questionRef" refer="questionIdKey">
+    <xs:selector xpath="lv:step/lv:group/lv:question-copy" />
+    <xs:field    xpath="@ref" />
+  </xs:keyref>
+</xs:element>
+
+
+<xs:complexType name="includeType">
+  <xs:attribute name="src" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Path to external script. The script will be accessible via:
+        require( 'path/sans/js/ext' );
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+
+<!-- triggers -->
+<xs:complexType name="triggerType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Triggers an event
+    </xs:documentation>
+  </xs:annotation>
+  <xs:attribute name="group" type="triggerGroups">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Name of a trigger group (use this or @event)
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="event" type="xs:token">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Name of the event to trigger (use this or @group)
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="ref" type="xs:token">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Reference to trigger event upon. Appending "*" to the end of an id (e.g.
+        "foo*" will cause all elements associated with that name to be triggered
+        regardless of assertion conditions.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="value" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Value to pass to event (if supported)
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+</xs:complexType>
+
+<xs:simpleType name="triggerGroups">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Supported trigger groups
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="showhide" />
+    <xs:enumeration value="hideshow" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:element name="trigger" type="triggerType" />
+
+<xs:simpleType name="eventTriggerType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      A trigger event; an event that will kick off an assertion, such as a page
+      load or form submission.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:token">
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:attribute name="onEvent" type="eventTriggerType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Events supported by the rating system
+    </xs:documentation>
+  </xs:annotation>
+</xs:attribute>
+
+<!-- for use by assertions -->
+<xs:attribute name="internal" type="xs:boolean" default="false">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Whether the assertion should apply only to users logged in internally.
+    </xs:documentation>
+  </xs:annotation>
+</xs:attribute>
+
+
+<xs:complexType name="sidebarType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Contents of sidebar specific to this program
+    </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+    <xs:element name="overview" type="sidebarOverviewType" maxOccurs="1" />
+    <xs:element name="static" type="staticElement" minOccurs="0" maxOccurs="1" />
+  </xs:sequence>
+</xs:complexType>
+
+
+<xs:complexType name="sidebarOverviewType">
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Appends elements to the overview portion of the sidebar
+    </xs:documentation>
+  </xs:annotation>
+  <xs:sequence>
+    <xs:element name="item" minOccurs="1" maxOccurs="unbounded">
+      <xs:complexType>
+        <xs:attribute name="title" type="xs:string" use="required">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Text to appear as the title of the field on the sidebar
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="ref" type="refId">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Optional question reference (similar to answer element)
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="internal" type="xs:boolean">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+              Display item for internal users only
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<!-- to allow referencing by xs:any in other schemas -->
+<xs:element name="answer" type="answerElement" />
+
+</xs:schema>

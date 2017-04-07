@@ -1,0 +1,17 @@
+This project could use some refactoring and redesign.  It is old, and the
+author (mtg) didn't know XSLT (or much JS, even) when initially writing it.
+
+See the TAME project for an example of modern XSLT that this could aspire
+to become.
+
+This project was initially conceived as a way to generate static HTML and
+SQL for an existing rating system (that this eventually replaced by evolving
+into Liza and TAME).  As such, it produces static HTML which is then
+processed by Liza (by picking metadata and such out of it).  It also
+generates large chunks of JavaScript inline.
+
+  1. Stop generating HTML---just convert to JSON and let liza handle DOM
+     generation.
+  2. Stop this inline JS madness and use a core library (that would be part
+     of liza).
+
