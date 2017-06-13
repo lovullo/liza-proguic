@@ -3,7 +3,7 @@
   Builds the data API data structures to be included in the Program class
   for a given program
 
-  Copyright (C) 2017 LoVullo Associates, Inc.
+  Copyright (C) 2017 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 

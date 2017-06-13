@@ -1,6 +1,6 @@
 # Liza Data Collection Framework Program UI Compiler
 <!--
-  Copyright (C) 2017 LoVullo Associates, Inc.
+  Copyright (C) 2017 R-T Specialty, LLC.
 
   This file is part of liza-proguic.
 
