@@ -23,57 +23,54 @@
 
   AN XSLT 2.0 PARSER IS REQUIRED TO PROCESS THIS STYLESHEET!
 -->
-<xsl:stylesheet version="2.0"
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:lv="http://www.lovullo.com"
-  xmlns:compiler="http://www.lovullo.com/program/compiler"
-  xmlns:assert="http://www.lovullo.com/assert">
+<stylesheet version="2.0"
+            xmlns="http://www.w3.org/1999/XSL/Transform"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:lv="http://www.lovullo.com"
+            xmlns:compiler="http://www.lovullo.com/program/compiler"
+            xmlns:assert="http://www.lovullo.com/assert">
 
-<xsl:output
-  method="text"
-  indent="yes"
-  omit-xml-declaration="yes"
-  />
+<output method="text"
+        indent="yes"
+        omit-xml-declaration="yes" />
 
 
 <!--
   Constructs an object literal containing object-literal definitions of each
   API, indexed by API id
 -->
-<xsl:template match="lv:program" mode="compiler:compile-apis">
-  <xsl:text>{</xsl:text>
-    <xsl:for-each select="./lv:api">
-      <xsl:if test="position() > 1">
-        <xsl:text>,</xsl:text>
-      </xsl:if>
+<template match="lv:program" mode="compiler:compile-apis">
+  <text>{</text>
+    <for-each select="./lv:api">
+      <if test="position() > 1">
+        <text>,</text>
+      </if>
 
-      <xsl:text>'</xsl:text>
-        <xsl:value-of select="@id" />
-      <xsl:text>':</xsl:text>
+      <text>'</text>
+        <value-of select="@id" />
+      <text>':</text>
 
-      <xsl:apply-templates select="." mode="compiler:compile" />
-    </xsl:for-each>
-  <xsl:text>}</xsl:text>
-</xsl:template>
+      <apply-templates select="." mode="compiler:compile" />
+    </for-each>
+  <text>}</text>
+</template>
 
 
-<xsl:template match="lv:program" mode="compiler:compile-question-apis">
-  <xsl:text>{</xsl:text>
-    <xsl:for-each select="//lv:question[ lv:data ]">
-      <xsl:if test="position() > 1">
-        <xsl:text>,</xsl:text>
-      </xsl:if>
+<template match="lv:program" mode="compiler:compile-question-apis">
+  <text>{</text>
+    <for-each select="//lv:question[ lv:data ]">
+      <if test="position() > 1">
+        <text>,</text>
+      </if>
 
-      <xsl:value-of select="concat( '''',
-                                    @id,
-                                    ''':''',
-                                    lv:data/@source,
-                                    '''' )" />
-    </xsl:for-each>
-  <xsl:text>}</xsl:text>
-</xsl:template>
+      <value-of select="concat( '''',
+                                @id,
+                                ''':''',
+                                lv:data/@source,
+                                '''' )" />
+    </for-each>
+  <text>}</text>
+</template>
 
 
 <!--
@@ -84,87 +81,87 @@
 
   The generated code is an object literal describing the API.
 -->
-<xsl:template match="lv:api[@type='rest' or @type='local']" mode="compiler:compile" priority="5">
-  <xsl:variable name="api" select="." />
+<template match="lv:api[@type='rest' or @type='local']" mode="compiler:compile" priority="5">
+  <variable name="api" select="." />
 
-  <xsl:text>{</xsl:text>
+  <text>{</text>
     <!-- simply copy over the string values of each of these attributes -->
-    <xsl:for-each select="('type', 'source', 'method')">
-      <xsl:variable name="attr" select="." />
+    <for-each select="('type', 'source', 'method')">
+      <variable name="attr" select="." />
 
-      <xsl:value-of select="$attr" />
-      <xsl:text>:'</xsl:text>
-        <xsl:value-of select="$api/@*[ local-name() = $attr ]" />
-      <xsl:text>',</xsl:text>
-    </xsl:for-each>
+      <value-of select="$attr" />
+      <text>:'</text>
+        <value-of select="$api/@*[ local-name() = $attr ]" />
+      <text>',</text>
+    </for-each>
 
     <!-- build params (to be sent to the service) -->
-    <xsl:text>params:{</xsl:text>
-      <xsl:for-each select="./lv:param">
-        <xsl:if test="position() > 1">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
+    <text>params:{</text>
+      <for-each select="./lv:param">
+        <if test="position() > 1">
+          <text>,</text>
+        </if>
 
-        <xsl:text>'</xsl:text>
-          <xsl:value-of select="@name" />
-        <xsl:text>':</xsl:text>
+        <text>'</text>
+          <value-of select="@name" />
+        <text>':</text>
 
         <!-- generate the param description -->
-        <xsl:apply-templates select="." mode="compiler:compile" />
-      </xsl:for-each>
-    <xsl:text>},</xsl:text>
+        <apply-templates select="." mode="compiler:compile" />
+      </for-each>
+    <text>},</text>
 
     <!-- build an array of expected return values -->
-    <xsl:text>retvals:[</xsl:text>
-      <xsl:for-each select="./lv:returns/lv:param">
-        <xsl:if test="position() > 1">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
+    <text>retvals:[</text>
+      <for-each select="./lv:returns/lv:param">
+        <if test="position() > 1">
+          <text>,</text>
+        </if>
 
-        <xsl:text>'</xsl:text>
-          <xsl:value-of select="@name" />
-        <xsl:text>'</xsl:text>
-      </xsl:for-each>
-    <xsl:text>],</xsl:text>
+        <text>'</text>
+          <value-of select="@name" />
+        <text>'</text>
+      </for-each>
+    <text>],</text>
 
     <!-- static values to prepend to the server response set -->
-    <xsl:text>'static':[</xsl:text>
-      <xsl:for-each select="./lv:returns/lv:static/lv:item">
-        <xsl:if test="position() > 1">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
+    <text>'static':[</text>
+      <for-each select="./lv:returns/lv:static/lv:item">
+        <if test="position() > 1">
+          <text>,</text>
+        </if>
 
-        <xsl:text>{</xsl:text>
-          <xsl:apply-templates select="." mode="compiler:compile" />
-        <xsl:text>}</xsl:text>
-      </xsl:for-each>
-    <xsl:text>],</xsl:text>
+        <text>{</text>
+          <apply-templates select="." mode="compiler:compile" />
+        <text>}</text>
+      </for-each>
+    <text>],</text>
 
-    <xsl:text>static_nonempty:</xsl:text>
-    <xsl:choose>
-      <xsl:when test="./lv:returns/lv:static/@nonempty = 'true'">
-        <xsl:text>true</xsl:text>
-      </xsl:when>
+    <text>static_nonempty:</text>
+    <choose>
+      <when test="./lv:returns/lv:static/@nonempty = 'true'">
+        <text>true</text>
+      </when>
 
-      <xsl:otherwise>
-        <xsl:text>false</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
+      <otherwise>
+        <text>false</text>
+      </otherwise>
+    </choose>
 
-    <xsl:text>,</xsl:text>
+    <text>,</text>
 
-    <xsl:text>static_multiple:</xsl:text>
-    <xsl:choose>
-      <xsl:when test="./lv:returns/lv:static/@multiple = 'true'">
-        <xsl:text>true</xsl:text>
-      </xsl:when>
+    <text>static_multiple:</text>
+    <choose>
+      <when test="./lv:returns/lv:static/@multiple = 'true'">
+        <text>true</text>
+      </when>
 
-      <xsl:otherwise>
-        <xsl:text>false</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-  <xsl:text>}</xsl:text>
-</xsl:template>
+      <otherwise>
+        <text>false</text>
+      </otherwise>
+    </choose>
+  <text>}</text>
+</template>
 
 
 <!--
@@ -179,103 +176,103 @@
   syntax errors more likely); if we need single quotes, that will have to be
   changed in the future. Changes are, single quotes will not be needed.
 -->
-<xsl:template match="lv:api/lv:param" mode="compiler:compile">
-  <xsl:text>{</xsl:text>
+<template match="lv:api/lv:param" mode="compiler:compile">
+  <text>{</text>
 
   <!-- param name -->
-  <xsl:text>name:'</xsl:text>
-    <xsl:value-of select="@name" />
-  <xsl:text>',</xsl:text>
+  <text>name:'</text>
+    <value-of select="@name" />
+  <text>',</text>
 
   <!-- default value, if any (will default to an empty string -->
-  <xsl:text>'default':{</xsl:text>
-    <xsl:text>type:'</xsl:text>
-      <xsl:choose>
+  <text>'default':{</text>
+    <text>type:'</text>
+      <choose>
         <!-- if the value starts with a single quote, then it is to be
              interpreted as a string instead of a bucket reference -->
-        <xsl:when test="starts-with( @value, &quot;'&quot; )">
-          <xsl:text>string</xsl:text>
-        </xsl:when>
+        <when test="starts-with( @value, &quot;'&quot; )">
+          <text>string</text>
+        </when>
 
         <!-- non-strings are considered to be bucket references -->
-        <xsl:otherwise>
-          <xsl:text>ref</xsl:text>
-        </xsl:otherwise>
-      </xsl:choose>
-    <xsl:text>',</xsl:text>
+        <otherwise>
+          <text>ref</text>
+        </otherwise>
+      </choose>
+    <text>',</text>
 
-    <xsl:text>value:'</xsl:text>
+    <text>value:'</text>
       <!-- remove single quotes, which may or may not be present -->
-      <xsl:value-of select="translate( @value, &quot;'&quot;, '' )" />
-    <xsl:text>'</xsl:text>
-  <xsl:text>}</xsl:text>
+      <value-of select="translate( @value, &quot;'&quot;, '' )" />
+    <text>'</text>
+  <text>}</text>
 
-  <xsl:text>}</xsl:text>
-</xsl:template>
+  <text>}</text>
+</template>
 
 
-<xsl:template match="lv:api/lv:returns/lv:static/lv:item" mode="compiler:compile">
-  <xsl:for-each select="./lv:value">
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+<template match="lv:api/lv:returns/lv:static/lv:item" mode="compiler:compile">
+  <for-each select="./lv:value">
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-      <xsl:value-of select="@param" />
-    <xsl:text>':'</xsl:text>
+    <text>'</text>
+      <value-of select="@param" />
+    <text>':'</text>
       <!-- remove single quotes -->
-      <xsl:value-of select="translate( ., &quot;'&quot;, '' )" />
-    <xsl:text>'</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+      <value-of select="translate( ., &quot;'&quot;, '' )" />
+    <text>'</text>
+  </for-each>
+</template>
 
 
 <!-- unknown API type -->
-<xsl:template match="lv:api" mode="compiler:compile" priority="1">
+<template match="lv:api" mode="compiler:compile" priority="1">
   <compiler:error>
-    <xsl:text>Unknown API type '</xsl:text>
-      <xsl:value-of select="@type" />
-    <xsl:text>'</xsl:text>
+    <text>Unknown API type '</text>
+      <value-of select="@type" />
+    <text>'</text>
   </compiler:error>
-</xsl:template>
+</template>
 
 
 <!--
   Triggers API calls when dependency params change
 -->
-<xsl:template mode="post-parse-question-event"
+<template mode="post-parse-question-event"
               priority="5"
               match="lv:question[
                        ./lv:data
                        or @id=//lv:data/@* ]">
-  <xsl:param name="type" />
-  <xsl:param name="id" />
-  <xsl:param name="eventData" />
+  <param name="type" />
+  <param name="id" />
+  <param name="eventData" />
 
-  <xsl:choose>
-    <xsl:when test="$type = 'dapi'">
-      <xsl:call-template name="compiler:dapi-event" />
-    </xsl:when>
+  <choose>
+    <when test="$type = 'dapi'">
+      <call-template name="compiler:dapi-event" />
+    </when>
 
-    <xsl:when test="$type = 'change'">
-      <xsl:sequence select="concat(
-                            $eventData,
-                            '.dapi[''', $id, ''']',
-                            '.apply( this, arguments ); ' )" />
-    </xsl:when>
-  </xsl:choose>
-</xsl:template>
+    <when test="$type = 'change'">
+      <sequence select="concat(
+                          $eventData,
+                          '.dapi[''', $id, ''']',
+                          '.apply( this, arguments ); ' )" />
+    </when>
+  </choose>
+</template>
 
 
-<xsl:template name="compiler:dapi-event">
-  <xsl:variable name="id"       select="@id" />
-  <xsl:variable name="question" select="." />
+<template name="compiler:dapi-event">
+  <variable name="id"       select="@id" />
+  <variable name="question" select="." />
 
   <!-- are we used as a dependency for any other API calls? -->
-  <xsl:variable name="depof" as="element( lv:question )*"
+  <variable name="depof" as="element( lv:question )*"
                 select="//lv:question[ ./lv:data/@* = $id ]" />
 
-  <xsl:variable name="dapi-call" as="element( lv:data )+"
+  <variable name="dapi-call" as="element( lv:data )+"
                 select="if ( exists( $depof ) ) then
                           $depof/lv:data
                         else
@@ -283,87 +280,87 @@
 
   <!-- whether any questions we map _to_ request that their values be
        retained -->
-  <xsl:variable name="has-retains" as="xs:boolean"
+  <variable name="has-retains" as="xs:boolean"
               select="exists( //lv:question[
                           @id = $dapi-call/lv:map/@into
                           and @retain = 'true'
                       ] )" />
 
-  <xsl:for-each select="$depof">
-    <xsl:choose>
-      <xsl:when test="lv:data/@source=//lv:api[ @combined='true' ]/@id">
+  <for-each select="$depof">
+    <choose>
+      <when test="lv:data/@source=//lv:api[ @combined='true' ]/@id">
         <!-- marker to help find this code in the compiled file -->
-        <xsl:text>/*dapicall-combined*/</xsl:text>
+        <text>/*dapicall-combined*/</text>
 
         <!-- we only care about the indexes that have actually changed -->
-        <xsl:text>if(diff['</xsl:text>
-          <xsl:value-of select="$id" />
-        <xsl:text>']){</xsl:text>
+        <text>if(diff['</text>
+          <value-of select="$id" />
+        <text>']){</text>
           <!-- trigger the API call -->
-          <xsl:apply-templates select="./lv:data" mode="compiler:api-trigger" />
-        <xsl:text>}</xsl:text>
-      </xsl:when>
+          <apply-templates select="./lv:data" mode="compiler:api-trigger" />
+        <text>}</text>
+      </when>
 
 
-      <xsl:otherwise>
+      <otherwise>
         <!-- marker to help find this code in the compiled file -->
-        <xsl:text>/*dapicall*/</xsl:text>
+        <text>/*dapicall*/</text>
 
         <!-- we only care about the indexes that have actually changed -->
-        <xsl:text>var diffdata=diff['</xsl:text>
-          <xsl:value-of select="$id" />
-        <xsl:text>'];</xsl:text>
+        <text>var diffdata=diff['</text>
+          <value-of select="$id" />
+        <text>'];</text>
 
         <!-- we must make the API call for each index -->
         <!-- N.B. As a consequence of this, since diff should be {} on load (since
              nothing actually changed), this will not kick off on step load (see the change
              event for the question itself) -->
-        <xsl:text>var cdata=bucket.getDataByName('</xsl:text>
-          <xsl:value-of select="$id" />
-        <xsl:text>');</xsl:text>
-        <xsl:text>for(var i in (diffdata||cdata)){</xsl:text>
+        <text>var cdata=bucket.getDataByName('</text>
+          <value-of select="$id" />
+        <text>');</text>
+        <text>for(var i in (diffdata||cdata)){</text>
           <!-- if any destination field requests to retain its value
                when its predicate no longer matches, then there is no
                use in ignoring the predicate, since there's no value
                to clear when it becomes false if we don't make the
                 call to begin with -->
-            <xsl:if test="not( $has-retains )">
+            <if test="not( $has-retains )">
             <!-- if subject to a predicate, ensure that it is met -->
-            <xsl:text>if(cmatch['</xsl:text>
-                <xsl:value-of select="@id" />
-            <xsl:text>'] &amp;&amp; +cmatch['</xsl:text>
-                <xsl:value-of select="@id" />
-            <xsl:text>'].indexes[i] !== 1</xsl:text>
-            <xsl:text> &amp;&amp; !cmatch['</xsl:text>
-                <xsl:value-of select="@id" />
-            <xsl:text>'].all) {</xsl:text>
-                <xsl:text>this.dapiManager.fieldStale('</xsl:text>
-                    <xsl:value-of select="@id" />
-                <xsl:text>',i); continue;</xsl:text>
-            <xsl:text>};</xsl:text>
-          </xsl:if>
+            <text>if(cmatch['</text>
+                <value-of select="@id" />
+            <text>'] &amp;&amp; +cmatch['</text>
+                <value-of select="@id" />
+            <text>'].indexes[i] !== 1</text>
+            <text> &amp;&amp; !cmatch['</text>
+                <value-of select="@id" />
+            <text>'].all) {</text>
+                <text>this.dapiManager.fieldStale('</text>
+                    <value-of select="@id" />
+                <text>',i); continue;</text>
+            <text>};</text>
+          </if>
 
           <!-- ensure that i keeps its value throughout the life of the request -->
-          <xsl:text>(function(i){</xsl:text>
+          <text>(function(i){</text>
 
             <!-- trigger the API call -->
-            <xsl:apply-templates select="./lv:data" mode="compiler:api-trigger">
-              <xsl:with-param name="i" select="'i'" />
-            </xsl:apply-templates>
+            <apply-templates select="./lv:data" mode="compiler:api-trigger">
+              <with-param name="i" select="'i'" />
+            </apply-templates>
 
           <!-- self-executing closure for the index (otherwise the value would have
                changed before the request comes back, so we would always be dealing
                with the last index) -->
-          <xsl:text>}).call(this,i);</xsl:text>
+          <text>}).call(this,i);</text>
 
-        <xsl:text>}</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:for-each>
+        <text>}</text>
+      </otherwise>
+    </choose>
+  </for-each>
 
   <!-- compile any direct API calls, if any -->
-  <xsl:apply-templates select="./lv:data" mode="compiler:compile" />
-</xsl:template>
+  <apply-templates select="./lv:data" mode="compiler:compile" />
+</template>
 
 
 <!--
@@ -375,346 +372,344 @@
   values. Consequently, this means that erasing the value of a field that this
   depends on will cause this field to be cleared.
 -->
-<xsl:template match="lv:data" mode="compiler:api-trigger">
+<template match="lv:data" mode="compiler:api-trigger">
   <!-- the variable in the generated JS holding the index to operate on -->
-  <xsl:param name="i" select="'-1'" />
+  <param name="i" select="'-1'" />
 
-  <xsl:variable name="self" select="." />
+  <variable name="self" select="." />
 
   <!-- id of the parent question -->
-  <xsl:variable name="qid" select="../@id" />
+  <variable name="qid" select="../@id" />
 
   <!-- grab a list of all the API call params -->
-  <xsl:variable name="params"
+  <variable name="params"
     select="@*[ not( local-name()='source' ) ]" />
 
   <!-- grab value and label mappings -->
-  <xsl:variable name="value-map" select="./lv:value/@from" />
-  <xsl:variable name="label-map">
-    <xsl:choose>
+  <variable name="value-map" select="./lv:value/@from" />
+  <variable name="label-map">
+    <choose>
       <!-- if a label map is given, use it -->
-      <xsl:when test="./lv:label">
-        <xsl:value-of select="./lv:label/@from" />
-      </xsl:when>
+      <when test="./lv:label">
+        <value-of select="./lv:label/@from" />
+      </when>
 
       <!-- otherwise, default to the same value as the value map -->
-      <xsl:otherwise>
-        <xsl:value-of select="$value-map" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
+      <otherwise>
+        <value-of select="$value-map" />
+      </otherwise>
+    </choose>
+  </variable>
 
-  <xsl:text>var _self=this;</xsl:text>
+  <text>var _self=this;</text>
 
   <!-- this is where the magic happens -->
-  <xsl:if test="$i = '-1'">
-    <xsl:text>var i=-1;</xsl:text>
-  </xsl:if>
+  <if test="$i = '-1'">
+    <text>var i=-1;</text>
+  </if>
 
-  <xsl:text>(function(i){</xsl:text>
+  <text>(function(i){</text>
     <!-- default; TODO: we don't always need this -->
-    <xsl:text>var cdata = [];</xsl:text>
+    <text>var cdata = [];</text>
 
     <!-- do we have any restrictions on this API call? -->
-    <xsl:for-each select="lv:unless-set">
+    <for-each select="lv:unless-set">
       <!-- return immediately from the lambda if the value is already set -->
-      <xsl:text>if(''+bucket.getDataByName('</xsl:text>
-        <xsl:value-of select="@ref" />
-      <xsl:text>')[i]!=='')return;</xsl:text>
-    </xsl:for-each>
+      <text>if(''+bucket.getDataByName('</text>
+        <value-of select="@ref" />
+      <text>')[i]!=='')return;</text>
+    </for-each>
 
 
     <!-- prevents race conditions when triggering fieldLoading event -->
-    <xsl:text>var doload=true;</xsl:text>
+    <text>var doload=true;</text>
 
     <!-- TODO: duplicated  -->
-    <xsl:text>var prediff=bucket.getDataByName('</xsl:text>
-        <xsl:value-of select="../@id" />
-    <xsl:text>');</xsl:text>
+    <text>var prediff=bucket.getDataByName('</text>
+        <value-of select="../@id" />
+    <text>');</text>
 
-    <xsl:text>this.dapiManager.getApiData('</xsl:text>
-      <xsl:value-of select="@source" />
-    <xsl:text>', {</xsl:text>
+    <text>this.dapiManager.getApiData('</text>
+      <value-of select="@source" />
+    <text>', {</text>
 
       <!-- add each of the param lookups -->
-      <xsl:for-each select="$params">
-        <xsl:if test="position() > 1 ">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
+      <for-each select="$params">
+        <if test="position() > 1 ">
+          <text>,</text>
+        </if>
 
         <!-- the ref we need to look up for this param -->
-        <xsl:variable name="ref" select="." />
+        <variable name="ref" select="." />
 
         <!-- get the name associated with this param -->
-        <xsl:variable name="pname"
+        <variable name="pname"
           select="$self/@*[ . = $ref ]/local-name()" />
 
-        <xsl:text>'</xsl:text>
-          <xsl:value-of select="$pname" />
-        <xsl:text>': </xsl:text>
+        <text>'</text>
+          <value-of select="$pname" />
+        <text>': </text>
 
-        <xsl:variable name="bucket-data">
-          <xsl:call-template name="parse-expected">
-            <xsl:with-param name="expected" select="$ref" />
-            <xsl:with-param name="with-diff" select="true()" />
-          </xsl:call-template>
-        </xsl:variable>
+        <variable name="bucket-data">
+          <call-template name="parse-expected">
+            <with-param name="expected" select="$ref" />
+            <with-param name="with-diff" select="true()" />
+          </call-template>
+        </variable>
 
-        <xsl:choose>
-          <xsl:when test="substring( $ref, 1, 1 ) = &quot;'&quot;">
-            <xsl:value-of select="$ref" />
-          </xsl:when>
+        <choose>
+          <when test="substring( $ref, 1, 1 ) = &quot;'&quot;">
+            <value-of select="$ref" />
+          </when>
 
           <!-- -1 is the "combined" index -->
-          <xsl:when test="$i = '-1'">
-            <xsl:value-of select="$bucket-data" />
-          </xsl:when>
+          <when test="$i = '-1'">
+            <value-of select="$bucket-data" />
+          </when>
 
-          <xsl:otherwise>
-            <xsl:value-of select="$bucket-data" />
-            <xsl:text>[</xsl:text>
-              <xsl:value-of select="$i" />
-            <xsl:text>]</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:for-each>
+          <otherwise>
+            <value-of select="$bucket-data" />
+            <text>[</text>
+              <value-of select="$i" />
+            <text>]</text>
+          </otherwise>
+        </choose>
+      </for-each>
 
-      <xsl:text>},</xsl:text>
+      <text>},</text>
 
       <!-- once the data is returned, populate the field -->
-      <xsl:text>function(err,retdata){doload=false;_self.dapiManager.setFieldData('</xsl:text>
-        <xsl:value-of select="$qid" />
-      <xsl:text>',</xsl:text>
-        <xsl:value-of select="$i" />
-      <xsl:text>,retdata,'</xsl:text>
-        <xsl:value-of select="$value-map" />
-      <xsl:text>','</xsl:text>
-        <xsl:value-of select="$label-map" />
-      <xsl:text>',(prediff[i]===cdata[i]))},</xsl:text>
+      <text>function(err,retdata){doload=false;_self.dapiManager.setFieldData('</text>
+        <value-of select="$qid" />
+      <text>',</text>
+        <value-of select="$i" />
+      <text>,retdata,'</text>
+        <value-of select="$value-map" />
+      <text>','</text>
+        <value-of select="$label-map" />
+      <text>',(prediff[i]===cdata[i]))},</text>
 
-    <xsl:text>'</xsl:text>
-      <xsl:value-of select="$qid" />
-    <xsl:text>',i,bucket,function(e){</xsl:text>
+    <text>'</text>
+      <value-of select="$qid" />
+    <text>',i,bucket,function(e){</text>
       <!-- on failure -->
-      <xsl:text>_self.dapiManager.clearPendingApiCall('</xsl:text>
-        <xsl:value-of select="$qid" />
-      <xsl:text>_'+i);</xsl:text>
+      <text>_self.dapiManager.clearPendingApiCall('</text>
+        <value-of select="$qid" />
+      <text>_'+i);</text>
 
-      <xsl:text>_self.dapiManager.fieldNotReady('</xsl:text>
-        <xsl:value-of select="$qid" />
-      <xsl:text>',</xsl:text>
-        <xsl:value-of select="$i" />
-      <xsl:text>,bucket);</xsl:text>
+      <text>_self.dapiManager.fieldNotReady('</text>
+        <value-of select="$qid" />
+      <text>',</text>
+        <value-of select="$i" />
+      <text>,bucket);</text>
 
     <!-- end of getApiData() call -->
-    <xsl:text>});</xsl:text>
+    <text>});</text>
 
     <!-- kick off an event allowing the UI/etc to indicate that the field
          is loading (we must do this *after* the call to ensure that this
          is only kicked off if there is no error) -->
-    <xsl:text>if(doload){</xsl:text>
-      <xsl:text>this.emit('fieldLoading','</xsl:text>
-        <xsl:value-of select="$qid" />
-      <xsl:text>',</xsl:text>
-        <xsl:value-of select="$i" />
-      <xsl:text>);</xsl:text>
-    <xsl:text>}</xsl:text>
+    <text>if(doload){</text>
+      <text>this.emit('fieldLoading','</text>
+        <value-of select="$qid" />
+      <text>',</text>
+        <value-of select="$i" />
+      <text>);</text>
+    <text>}</text>
   <!-- invoke lambda with i to ensure that the value does not change on us -->
-  <xsl:text>}).call(this,i);</xsl:text>
-</xsl:template>
+  <text>}).call(this,i);</text>
+</template>
 
 
-<xsl:template match="lv:data" mode="compiler:gen-data-map">
-  <xsl:for-each select="./lv:map">
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+<template match="lv:data" mode="compiler:gen-data-map">
+  <for-each select="./lv:map">
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-      <xsl:value-of select="@into" />
-    <xsl:text>':'</xsl:text>
-      <xsl:value-of select="@param" />
-    <xsl:text>'</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>'</text>
+      <value-of select="@into" />
+    <text>':'</text>
+      <value-of select="@param" />
+    <text>'</text>
+  </for-each>
+</template>
 
 
 <!--
   Handles param expansion when a field containing API data changes
 -->
-<xsl:template match="lv:question/lv:data" mode="compiler:compile">
+<template match="lv:question/lv:data" mode="compiler:compile">
   <!-- The change event is triggered on step load as well as the addition of
        any indexes, giving us the chance to initialize any API calls. This also
        allows us to initialize once on page load rather than once per param
        change event (which would be bad) -->
-  <xsl:apply-templates select="." mode="compiler:compile-api-init" />
+  <apply-templates select="." mode="compiler:compile-api-init" />
 
   <!-- we only care about the indexes that have actually changed -->
-  <xsl:text>var diffdata=diff['</xsl:text>
-      <xsl:value-of select="../@id" />
-    <xsl:text>']||</xsl:text>
+  <text>var diffdata=diff['</text>
+      <value-of select="../@id" />
+    <text>']||</text>
     <!-- we need to update the values for each field -->
-    <xsl:text>bucket.getDataByName('</xsl:text>
-      <xsl:value-of select="../@id" />
-  <xsl:text>');</xsl:text>
+    <text>bucket.getDataByName('</text>
+      <value-of select="../@id" />
+  <text>');</text>
 
-  <xsl:text>var prediff=bucket.getDataByName('</xsl:text>
-      <xsl:value-of select="../@id" />
-  <xsl:text>');</xsl:text>
+  <text>var prediff=bucket.getDataByName('</text>
+      <value-of select="../@id" />
+  <text>');</text>
 
   <!-- XXX: duplicate -->
-  <xsl:variable name="label-map">
-    <xsl:choose>
+  <variable name="label-map">
+    <choose>
       <!-- if a label map is given, use it -->
-      <xsl:when test="./lv:label">
-        <xsl:value-of select="./lv:label/@from" />
-      </xsl:when>
+      <when test="./lv:label">
+        <value-of select="./lv:label/@from" />
+      </when>
 
       <!-- otherwise, default to the same value as the value map -->
-      <xsl:otherwise>
-        <xsl:value-of select="lv:value/@from" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
+      <otherwise>
+        <value-of select="lv:value/@from" />
+      </otherwise>
+    </choose>
+  </variable>
 
-  <xsl:text>for(var i in diffdata){</xsl:text>
+  <text>for(var i in diffdata){</text>
     <!-- null represents a removal -->
-    <xsl:text>if(diffdata[i]===null){</xsl:text>
-      <xsl:text>this.dapiManager.clearFieldData('</xsl:text>
-        <xsl:value-of select="../@id" />
-      <xsl:text>',i, false);</xsl:text>
-      <xsl:text>continue;</xsl:text>
-    <xsl:text>}</xsl:text>
+    <text>if(diffdata[i]===null){</text>
+      <text>this.dapiManager.clearFieldData('</text>
+        <value-of select="../@id" />
+      <text>',i, false);</text>
+      <text>continue;</text>
+    <text>}</text>
 
-    <xsl:text>if(this.dapiManager.hasFieldData('</xsl:text>
-      <xsl:value-of select="../@id" />
-    <xsl:text>',i)){</xsl:text>
+    <text>if(this.dapiManager.hasFieldData('</text>
+      <value-of select="../@id" />
+    <text>',i)){</text>
 
       <!-- if we have no diff date, then this is probably triggered as the result
            of visiting the step; ensure that we populate the field if necessary
            -->
-      <xsl:text>var expand=(prediff[i]!==diffdata[i]);</xsl:text>
-      <xsl:text>if(!diff['</xsl:text>
-        <xsl:value-of select="../@id" />
-      <xsl:text>']){</xsl:text>
-        <xsl:text>expand=this.dapiManager.triggerFieldUpdate('</xsl:text>
-          <xsl:value-of select="../@id" />
-        <xsl:text>',</xsl:text>
-          <xsl:value-of select="'i'" />
-        <xsl:text>,'</xsl:text>
-          <xsl:value-of select="lv:value/@from" />
-        <xsl:text>','</xsl:text>
-          <xsl:value-of select="$label-map" />
-        <xsl:text>',(cdata[i]===diffdata[i]));</xsl:text>
-      <xsl:text>}</xsl:text>
+      <text>var expand=(prediff[i]!==diffdata[i]);</text>
+      <text>if(!diff['</text>
+        <value-of select="../@id" />
+      <text>']){</text>
+        <text>expand=this.dapiManager.triggerFieldUpdate('</text>
+          <value-of select="../@id" />
+        <text>',</text>
+          <value-of select="'i'" />
+        <text>,'</text>
+          <value-of select="lv:value/@from" />
+        <text>','</text>
+          <value-of select="$label-map" />
+        <text>',(cdata[i]===diffdata[i]));</text>
+      <text>}</text>
 
       <!-- expand the data into the bucket (the last argument indicates that we
            can predictively set values knowing that the data for the value may
            become available in the near future) -->
-      <xsl:text>if(expand)this.dapiManager.expandFieldData('</xsl:text>
-        <xsl:value-of select="../@id" />
-      <xsl:text>',i,bucket,{</xsl:text>
-        <xsl:apply-templates select="." mode="compiler:gen-data-map" />
-      <xsl:text>},true,diff);</xsl:text>
-    <xsl:text>}</xsl:text>
+      <text>if(expand)this.dapiManager.expandFieldData('</text>
+        <value-of select="../@id" />
+      <text>',i,bucket,{</text>
+        <apply-templates select="." mode="compiler:gen-data-map" />
+      <text>},true,diff);</text>
+    <text>}</text>
 
-  <xsl:text>}</xsl:text>
-</xsl:template>
+  <text>}</text>
+</template>
 
 
 <!--
   If an API call has no arguments, then it must be populated immediately (since
   there are no other fields that could trigger its population)
 -->
-<xsl:template match="lv:question/lv:data" mode="compiler:compile-api-init">
+<template match="lv:question/lv:data" mode="compiler:compile-api-init">
 
-  <xsl:variable name="qid" select="../@id" />
+  <variable name="qid" select="../@id" />
 
   <!-- marker to make it easier to find a section in the compiled code -->
-  <xsl:text>/*dapiinit*/</xsl:text>
+  <text>/*dapiinit*/</text>
 
   <!-- current bucket data -->
-  <xsl:text>var cdata=diff['</xsl:text>
-    <xsl:value-of select="$qid" />
-  <xsl:text>']||bucket.getDataByName('</xsl:text>
-    <xsl:value-of select="$qid" />
-  <xsl:text>');</xsl:text>
+  <text>var cdata=diff['</text>
+    <value-of select="$qid" />
+  <text>']||bucket.getDataByName('</text>
+    <value-of select="$qid" />
+  <text>');</text>
 
-  <xsl:choose>
+  <choose>
     <!-- combined call -->
-    <xsl:when test="@source=//lv:api[ @combined='true' ]/@id">
+    <when test="@source=//lv:api[ @combined='true' ]/@id">
       <!-- if we already have the API data, then we need only populate this
            field -->
-      <xsl:text>if(this.dapiManager.hasFieldData('</xsl:text>
-        <xsl:value-of select="$qid" />
-      <xsl:text>')){</xsl:text>
+      <text>if(this.dapiManager.hasFieldData('</text>
+        <value-of select="$qid" />
+      <text>')){</text>
 
         <!-- XXX: duplicate -->
-        <xsl:variable name="label-map">
-          <xsl:choose>
+        <variable name="label-map">
+          <choose>
             <!-- if a label map is given, use it -->
-            <xsl:when test="./lv:label">
-              <xsl:value-of select="./lv:label/@from" />
-            </xsl:when>
+            <when test="./lv:label">
+              <value-of select="./lv:label/@from" />
+            </when>
 
             <!-- otherwise, default to the same value as the value map -->
-            <xsl:otherwise>
-              <xsl:value-of select="lv:value/@from" />
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
+            <otherwise>
+              <value-of select="lv:value/@from" />
+            </otherwise>
+          </choose>
+        </variable>
 
         <!-- populate only the indexes that have changed -->
-        <xsl:text>var cdiff=diff['</xsl:text>
-          <xsl:value-of select="$qid" />
-        <xsl:text>'];</xsl:text>
-        <xsl:text>for(var i in cdiff){</xsl:text>
+        <text>var cdiff=diff['</text>
+          <value-of select="$qid" />
+        <text>'];</text>
+        <text>for(var i in cdiff){</text>
 
           <!-- do nothing if the data is unchanged -->
-          <xsl:text>if(cdiff[i]||cdiff[i]===''){</xsl:text>
+          <text>if(cdiff[i]||cdiff[i]===''){</text>
 
-            <xsl:text>this.dapiManager.triggerFieldUpdate('</xsl:text>
-              <xsl:value-of select="$qid" />
-            <xsl:text>',</xsl:text>
-              <xsl:value-of select="'i'" />
-            <xsl:text>,'</xsl:text>
-              <xsl:value-of select="lv:value/@from" />
-            <xsl:text>','</xsl:text>
-              <xsl:value-of select="$label-map" />
-            <xsl:text>',(cdata[i]===cdiff[i]));</xsl:text>
+            <text>this.dapiManager.triggerFieldUpdate('</text>
+              <value-of select="$qid" />
+            <text>',</text>
+              <value-of select="'i'" />
+            <text>,'</text>
+              <value-of select="lv:value/@from" />
+            <text>','</text>
+              <value-of select="$label-map" />
+            <text>',(cdata[i]===cdiff[i]));</text>
 
-          <xsl:text>}</xsl:text>
+          <text>}</text>
 
-        <xsl:text>}</xsl:text>
+        <text>}</text>
 
       <!-- otherwise, we do not yet have any data; perform the API call -->
-      <xsl:text>}else{</xsl:text>
-        <xsl:apply-templates select="." mode="compiler:api-trigger" />
-      <xsl:text>}</xsl:text>
-    </xsl:when>
+      <text>}else{</text>
+        <apply-templates select="." mode="compiler:api-trigger" />
+      <text>}</text>
+    </when>
 
     <!-- per-index -->
-    <xsl:otherwise>
+    <otherwise>
       <!-- check each existing index -->
-      <xsl:text>for(var i in cdata){</xsl:text>
+      <text>for(var i in cdata){</text>
 
         <!-- populate the field if it does not yet have any data -->
-        <xsl:text>if(!this.dapiManager.hasFieldData('</xsl:text>
-          <xsl:value-of select="$qid" />
-        <xsl:text>',i)){</xsl:text>
+        <text>if(!this.dapiManager.hasFieldData('</text>
+          <value-of select="$qid" />
+        <text>',i)){</text>
 
           <!-- trigger the API call for this index -->
-          <xsl:apply-templates select="." mode="compiler:api-trigger">
-            <xsl:with-param name="i" select="'i'" />
-          </xsl:apply-templates>
+          <apply-templates select="." mode="compiler:api-trigger">
+            <with-param name="i" select="'i'" />
+          </apply-templates>
 
-        <xsl:text>}</xsl:text>
-      <xsl:text>}</xsl:text>
-    </xsl:otherwise>
-  </xsl:choose>
+        <text>}</text>
+      <text>}</text>
+    </otherwise>
+  </choose>
 
-</xsl:template>
+</template>
 
-
-</xsl:stylesheet>
-
+</stylesheet>

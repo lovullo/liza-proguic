@@ -19,50 +19,42 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see
     <http://www.gnu.org/licenses/>.
-
-  AN XSLT 2.0 PARSER IS REQUIRED TO PROCESS THIS STYLESHEET!
 -->
-<xsl:stylesheet version="2.0"
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:lv="http://www.lovullo.com"
-  xmlns:compiler="http://www.lovullo.com/program/compiler"
-  xmlns:assert="http://www.lovullo.com/assert"
-  xmlns:preproc="http://www.lovullo.com/program/preprocessor"
+<stylesheet version="2.0"
+            xmlns="http://www.w3.org/1999/XSL/Transform"
+            xmlns:lv="http://www.lovullo.com"
+            xmlns:compiler="http://www.lovullo.com/program/compiler"
+            xmlns:assert="http://www.lovullo.com/assert"
+            xmlns:preproc="http://www.lovullo.com/program/preprocessor">
 
-  xmlns:exsl="http://exslt.org/common"
-  extension-element-prefixes="exsl">
-
-<xsl:output
-  method="text"
-  indent="yes"
-  omit-xml-declaration="yes"
-  />
+<output method="text"
+        indent="yes"
+        omit-xml-declaration="yes" />
 
 <!-- todo: way to remove? Needed by questions -->
-<xsl:variable name="debug" select="false()" />
+<variable name="debug" select="false()" />
 
 <!-- metadata -->
-<xsl:include href="program-build-meta.xsl" />
+<include href="program-build-meta.xsl" />
 
 <!-- calculated value methods -->
-<xsl:include href="program-calc-methods.xsl" />
+<include href="program-calc-methods.xsl" />
 
 <!-- data APIs -->
-<xsl:include href="program-data-api.xsl" />
+<include href="program-data-api.xsl" />
 
 <!-- questions -->
-<xsl:include href="question/question.xsl" />
+<include href="question/question.xsl" />
 
-<xsl:param name="include-path" />
+<param name="include-path" />
 
 
 <!--
   Compilation entry point
 -->
-<xsl:template match="/lv:program">
-  <xsl:apply-templates select="." mode="compiler:compile" />
-</xsl:template>
+<template match="/lv:program">
+  <apply-templates select="." mode="compiler:compile" />
+</template>
 
 
 <!--
@@ -70,23 +62,23 @@
 
   This will output all preprocessor errors to stdout and terminate, failing compilation.
 -->
-<xsl:template match="/lv:program[ .//preproc:error ]" mode="compiler:compile" priority="9">
+<template match="/lv:program[ .//preproc:error ]" mode="compiler:compile" priority="9">
   <!-- terminate with the preprocessor error messages -->
-  <xsl:for-each select=".//preproc:error">
-    <xsl:message>
-      <xsl:text>[Preprocessor error] </xsl:text>
-      <xsl:value-of select="." />
-    </xsl:message>
-  </xsl:for-each>
+  <for-each select=".//preproc:error">
+    <message>
+      <text>[Preprocessor error] </text>
+      <value-of select="." />
+    </message>
+  </for-each>
 
   <!-- finally, abort -->
   <!-- Yes, this is incredibly obnoxious! However, due to all the other build
        output, it's likely that it may not even be seen otherwise. -->
-  <xsl:message>***********************************************</xsl:message>
-  <xsl:message>*** Terminating due to preprocessor errors. ***</xsl:message>
-  <xsl:message>***********************************************</xsl:message>
-  <xsl:message terminate="yes">Compilation failed.</xsl:message>
-</xsl:template>
+  <message>***********************************************</message>
+  <message>*** Terminating due to preprocessor errors. ***</message>
+  <message>***********************************************</message>
+  <message terminate="yes">Compilation failed.</message>
+</template>
 
 
 <!--
@@ -95,33 +87,33 @@
   Note that this has a low priority, so it will only kick off if there are no
   other matches (e.g. matches for preprocessor errors)
 -->
-<xsl:template match="/lv:program" mode="compiler:compile" priority="1">
+<template match="/lv:program" mode="compiler:compile" priority="1">
   <!-- require XSLT 2.0 parser -->
-  <xsl:if test="number(system-property('xsl:version')) &lt; 2.0">
-    <xsl:message terminate="yes">XSLT 2.0 processor required</xsl:message>
-  </xsl:if>
+  <if test="number(system-property('version')) &lt; 2.0">
+    <message terminate="yes">XSLT 2.0 processor required</message>
+  </if>
 
   <!-- generate program path name -->
-  <xsl:variable name="path-program" select="lower-case(@id)"/>
+  <variable name="path-program" select="lower-case(@id)"/>
 
   <!-- includes must be kept separate from the program file, as they are not
        intended for the server. The program file is shared with both the server
        and the client. -->
   <!-- TODO: separate into sepaate build; we can't add a Makefile
        target for this -->
-  <xsl:result-document href="include.js">
-    <xsl:apply-templates select="lv:include" mode="build-pre" />
-  </xsl:result-document>
+  <result-document href="include.js">
+    <apply-templates select="lv:include" mode="build-pre" />
+  </result-document>
 
   <!-- generate program file -->
-  <xsl:apply-templates select="." mode="build-program-class" />
-</xsl:template>
+  <apply-templates select="." mode="build-program-class" />
+</template>
 
 
-<xsl:template match="/lv:program/lv:include" mode="build-pre">
-  <xsl:variable name="path"
+<template match="/lv:program/lv:include" mode="build-pre">
+  <variable name="path"
                 select="concat( $include-path, '/', @src )" />
-  <xsl:variable name="module"
+  <variable name="module"
                 select="if ( @as ) then
                           @as
                         else
@@ -129,236 +121,236 @@
 
   <!-- include script, wrapping it as a CommonJS module with the same name as
        the path, sans the .js extension -->
-  <xsl:text>(function(require,module){var exports=module.exports={};</xsl:text>
-  <xsl:value-of select="unparsed-text( $path, 'iso-8859-1' )" disable-output-escaping="yes" />
-  <xsl:text>})(require,modules['</xsl:text>
-  <xsl:value-of select="$module" />
-  <xsl:text>']={});</xsl:text>
-</xsl:template>
+  <text>(function(require,module){var exports=module.exports={};</text>
+  <value-of select="unparsed-text( $path, 'iso-8859-1' )" disable-output-escaping="yes" />
+  <text>})(require,modules['</text>
+  <value-of select="$module" />
+  <text>']={});</text>
+</template>
 
 
-<xsl:template match="/lv:program" mode="build-program-class">
-  <xsl:text>var Calc=require('program/Calc');</xsl:text>
-  <xsl:text>var BaseAssertions=require('assert/BaseAssertions');</xsl:text>
-  <xsl:text>var Program=require('program/Program').Program;</xsl:text>
+<template match="/lv:program" mode="build-program-class">
+  <text>var Calc=require('program/Calc');</text>
+  <text>var BaseAssertions=require('assert/BaseAssertions');</text>
+  <text>var Program=require('program/Program').Program;</text>
 
-  <xsl:text>module.exports=Program.extend({</xsl:text>
-    <xsl:text>id:'</xsl:text><xsl:value-of select="@id" /><xsl:text>',</xsl:text>
-    <xsl:text>version:'</xsl:text><xsl:value-of select="@version" /><xsl:text>',</xsl:text>
-    <xsl:text>title:'</xsl:text><xsl:value-of select="@title" /><xsl:text>',</xsl:text>
-    <xsl:text>steps:[</xsl:text><xsl:call-template name="build-steps" /><xsl:text>],</xsl:text>
-    <xsl:text>help:{</xsl:text><xsl:call-template name="build-help" /><xsl:text>},</xsl:text>
-    <xsl:text>internal:{</xsl:text><xsl:call-template name="build-internal" /><xsl:text>},</xsl:text>
-    <xsl:text>defaults:{</xsl:text><xsl:call-template name="build-defaults" /><xsl:text>},</xsl:text>
-    <xsl:text>displayDefaults:{</xsl:text><xsl:call-template name="build-display-defaults" /><xsl:text>},</xsl:text>
-    <xsl:text>groupIndexField:{</xsl:text><xsl:call-template name="build-group-index-fields" /><xsl:text>},</xsl:text>
-    <xsl:text>groupFields:{</xsl:text><xsl:call-template name="build-group-fields" /><xsl:text>},</xsl:text>
-    <xsl:text>groupUserFields:{</xsl:text>
-      <xsl:call-template name="build-group-fields">
-        <xsl:with-param name="linked" select="false()" />
-        <xsl:with-param name="visonly" select="true()" />
-      </xsl:call-template>
-    <xsl:text>},</xsl:text>
-    <xsl:text>groupExclusiveFields:{</xsl:text><xsl:call-template name="build-group-fields"><xsl:with-param name="linked" select="false()" /></xsl:call-template><xsl:text>},</xsl:text>
-    <xsl:text>links:{</xsl:text><xsl:call-template name="build-linked-fields" /><xsl:text>},</xsl:text>
-    <xsl:text>classes:{</xsl:text><xsl:call-template name="build-field-classes" /><xsl:text>},</xsl:text>
-    <xsl:text>cretain:{</xsl:text><xsl:call-template name="build-field-retains" /><xsl:text>},</xsl:text>
-    <xsl:text>whens:{</xsl:text><xsl:call-template name="build-field-when" /><xsl:text>},</xsl:text>
-    <xsl:text>qwhens:{</xsl:text><xsl:call-template name="build-qwhen-list" /><xsl:text>},</xsl:text>
-    <xsl:text>kbclear:{</xsl:text><xsl:call-template name="build-kbclear" /><xsl:text>},</xsl:text>
-    <xsl:text>requiredFields:{</xsl:text><xsl:call-template name="build-required-fields" /><xsl:text>},</xsl:text>
-    <xsl:text>meta:</xsl:text><xsl:call-template name="build-meta" /><xsl:text>,</xsl:text>
-    <xsl:text>secureFields:[</xsl:text><xsl:call-template name="build-secure-fields" /><xsl:text>],</xsl:text>
-    <xsl:text>unlockable:</xsl:text><xsl:value-of select="if ( @unlockable ) then 'true' else 'false'" /><xsl:text>,</xsl:text>
-    <xsl:text>discardable:[</xsl:text><xsl:call-template name="build-discard" /><xsl:text>],</xsl:text>
-    <xsl:text>rateSteps:[</xsl:text><xsl:call-template name="build-rate-steps" /><xsl:text>],</xsl:text>
-    <xsl:text>ineligibleLockCount:</xsl:text>
-      <xsl:value-of select="if ( @ineligibleLockCount ) then @ineligibleLockCount else '0'" />
-      <xsl:text>,</xsl:text>
-    <xsl:text>isInternal:false,</xsl:text>
+  <text>module.exports=Program.extend({</text>
+    <text>id:'</text><value-of select="@id" /><text>',</text>
+    <text>version:'</text><value-of select="@version" /><text>',</text>
+    <text>title:'</text><value-of select="@title" /><text>',</text>
+    <text>steps:[</text><call-template name="build-steps" /><text>],</text>
+    <text>help:{</text><call-template name="build-help" /><text>},</text>
+    <text>internal:{</text><call-template name="build-internal" /><text>},</text>
+    <text>defaults:{</text><call-template name="build-defaults" /><text>},</text>
+    <text>displayDefaults:{</text><call-template name="build-display-defaults" /><text>},</text>
+    <text>groupIndexField:{</text><call-template name="build-group-index-fields" /><text>},</text>
+    <text>groupFields:{</text><call-template name="build-group-fields" /><text>},</text>
+    <text>groupUserFields:{</text>
+      <call-template name="build-group-fields">
+        <with-param name="linked" select="false()" />
+        <with-param name="visonly" select="true()" />
+      </call-template>
+    <text>},</text>
+    <text>groupExclusiveFields:{</text><call-template name="build-group-fields"><with-param name="linked" select="false()" /></call-template><text>},</text>
+    <text>links:{</text><call-template name="build-linked-fields" /><text>},</text>
+    <text>classes:{</text><call-template name="build-field-classes" /><text>},</text>
+    <text>cretain:{</text><call-template name="build-field-retains" /><text>},</text>
+    <text>whens:{</text><call-template name="build-field-when" /><text>},</text>
+    <text>qwhens:{</text><call-template name="build-qwhen-list" /><text>},</text>
+    <text>kbclear:{</text><call-template name="build-kbclear" /><text>},</text>
+    <text>requiredFields:{</text><call-template name="build-required-fields" /><text>},</text>
+    <text>meta:</text><call-template name="build-meta" /><text>,</text>
+    <text>secureFields:[</text><call-template name="build-secure-fields" /><text>],</text>
+    <text>unlockable:</text><value-of select="if ( @unlockable ) then 'true' else 'false'" /><text>,</text>
+    <text>discardable:[</text><call-template name="build-discard" /><text>],</text>
+    <text>rateSteps:[</text><call-template name="build-rate-steps" /><text>],</text>
+    <text>ineligibleLockCount:</text>
+      <value-of select="if ( @ineligibleLockCount ) then @ineligibleLockCount else '0'" />
+      <text>,</text>
+    <text>isInternal:false,</text>
 
     <!-- determine an appropriate first step id -->
-    <xsl:text>firstStepId:</xsl:text><xsl:call-template name="get-fist-step-id" /><xsl:text>,</xsl:text>
+    <text>firstStepId:</text><call-template name="get-fist-step-id" /><text>,</text>
 
-    <xsl:text>sidebar:{</xsl:text>
-      <xsl:text>static_content: '</xsl:text>
-      <xsl:for-each select="lv:sidebar/lv:static">
-          <xsl:apply-templates select="." mode="generate-static" />
-      </xsl:for-each>
-      <xsl:text>',</xsl:text>
-      <xsl:text>overview:{</xsl:text>
-        <xsl:call-template name="build-sidebar-overview" />
-    <xsl:text>}},</xsl:text>
+    <text>sidebar:{</text>
+      <text>static_content: '</text>
+      <for-each select="lv:sidebar/lv:static">
+          <apply-templates select="." mode="generate-static" />
+      </for-each>
+      <text>',</text>
+      <text>overview:{</text>
+        <call-template name="build-sidebar-overview" />
+    <text>}},</text>
 
     <!-- data APIs -->
-    <xsl:text>apis:</xsl:text>
-      <xsl:apply-templates select="." mode="compiler:compile-apis" />
-      <xsl:text>,</xsl:text>
-    <xsl:text>qapis:</xsl:text>
-      <xsl:apply-templates select="." mode="compiler:compile-question-apis" />
-      <xsl:text>,</xsl:text>
+    <text>apis:</text>
+      <apply-templates select="." mode="compiler:compile-apis" />
+      <text>,</text>
+    <text>qapis:</text>
+      <apply-templates select="." mode="compiler:compile-question-apis" />
+      <text>,</text>
 
-    <xsl:text>initQuote:</xsl:text><xsl:call-template name="build-init" /><xsl:text>,</xsl:text>
+    <text>initQuote:</text><call-template name="build-init" /><text>,</text>
 
     <!-- classifier module -->
-    <xsl:text>'protected classifier':</xsl:text>'<xsl:value-of select="@classifier" /><xsl:text>',</xsl:text>
+    <text>'protected classifier':</text>'<value-of select="@classifier" /><text>',</text>
 
     <!-- export services -->
-    <xsl:text>export_path: {</xsl:text>
-    <xsl:text>c1: '</xsl:text>
-      <xsl:value-of select="@c1-import-path" />
-    <xsl:text>'},</xsl:text>
+    <text>export_path: {</text>
+    <text>c1: '</text>
+      <value-of select="@c1-import-path" />
+    <text>'},</text>
 
     <!-- sorted group sets -->
-    <xsl:text>sortedGroups:[</xsl:text><xsl:call-template name="compiler:gen-sorted-groups" /><xsl:text>],</xsl:text>
+    <text>sortedGroups:[</text><call-template name="compiler:gen-sorted-groups" /><text>],</text>
 
     <!-- build the event data for each step -->
-    <xsl:text>eventData:(function(){</xsl:text>
-      <xsl:text>var ret_data=[];</xsl:text>
-      <xsl:apply-templates select="lv:step" mode="build-program-class">
-        <xsl:with-param name="ret" select="'ret_data'" />
-      </xsl:apply-templates>
+    <text>eventData:(function(){</text>
+      <text>var ret_data=[];</text>
+      <apply-templates select="lv:step" mode="build-program-class">
+        <with-param name="ret" select="'ret_data'" />
+      </apply-templates>
 
-      <xsl:text>return ret_data;</xsl:text>
-    <xsl:text>})()</xsl:text>
-  <xsl:text>});</xsl:text>
-</xsl:template>
+      <text>return ret_data;</text>
+    <text>})()</text>
+  <text>});</text>
+</template>
 
 
 <!--
   Generates array containing step titles
 -->
-<xsl:template name="build-steps">
-  <xsl:for-each select="//lv:step">
+<template name="build-steps">
+  <for-each select="//lv:step">
     <!-- since there is no step 0, always add delimiter -->
-    <xsl:text>,</xsl:text>
+    <text>,</text>
 
-    <xsl:text>{title:'</xsl:text>
-    <xsl:value-of select="@title" />
-    <xsl:text>',type:'</xsl:text>
-    <xsl:value-of select="@type" />
-    <xsl:text>'}</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>{title:'</text>
+    <value-of select="@title" />
+    <text>',type:'</text>
+    <value-of select="@type" />
+    <text>'}</text>
+  </for-each>
+</template>
 
 
-<xsl:template match="lv:step" mode="build-program-class">
-  <xsl:param name="ret" />
+<template match="lv:step" mode="build-program-class">
+  <param name="ret" />
 
   <!-- represents the event data we'll be updating -->
-  <xsl:variable name="eventData">
-    <xsl:value-of select="$ret" /><xsl:text>[</xsl:text>
-      <xsl:value-of select="position()" />
-    <xsl:text>]</xsl:text>
-  </xsl:variable>
+  <variable name="eventData">
+    <value-of select="$ret" /><text>[</text>
+      <value-of select="position()" />
+    <text>]</text>
+  </variable>
 
-  <xsl:variable name="step" select="current()" />
+  <variable name="step" select="current()" />
 
-  <xsl:text>
-/*step</xsl:text><xsl:value-of select="position()" />
-    <xsl:text>(</xsl:text><xsl:value-of select="@title" />
-    <xsl:text>)*/</xsl:text>
+  <text>
+/*step</text><value-of select="position()" />
+    <text>(</text><value-of select="@title" />
+    <text>)*/</text>
 
   <!-- initialize the variable -->
-  <xsl:value-of select="$eventData" /><xsl:text>={};</xsl:text>
+  <value-of select="$eventData" /><text>={};</text>
 
   <!-- question-based assertion events -->
-  <xsl:for-each select="('submit', 'change', 'forward', 'dapi')">
-    <xsl:call-template name="parse-assert-events">
-      <xsl:with-param name="eventData" select="$eventData" />
-      <xsl:with-param name="type" select="." />
-      <xsl:with-param name="step" select="$step" />
+  <for-each select="('submit', 'change', 'forward', 'dapi')">
+    <call-template name="parse-assert-events">
+      <with-param name="eventData" select="$eventData" />
+      <with-param name="type" select="." />
+      <with-param name="step" select="$step" />
 
-      <xsl:with-param name="default" select="if ( current() = 'submit' ) then true() else false()" />
-      <xsl:with-param name="perQuestion"
+      <with-param name="default" select="if ( current() = 'submit' ) then true() else false()" />
+      <with-param name="perQuestion"
                       select="( current() = 'change' )
                               or ( current() = 'dapi' )" />
-    </xsl:call-template>
-  </xsl:for-each>
+    </call-template>
+  </for-each>
 
   <!-- non-question (and non-assertion) events -->
-  <xsl:for-each select="('beforeLoad', 'postSubmit', 'visit')">
-    <xsl:call-template name="parse-events">
-      <xsl:with-param name="eventData" select="$eventData" />
-      <xsl:with-param name="type" select="." />
-      <xsl:with-param name="step" select="$step" />
-    </xsl:call-template>
-  </xsl:for-each>
+  <for-each select="('beforeLoad', 'postSubmit', 'visit')">
+    <call-template name="parse-events">
+      <with-param name="eventData" select="$eventData" />
+      <with-param name="type" select="." />
+      <with-param name="step" select="$step" />
+    </call-template>
+  </for-each>
 
   <!-- actions -->
-  <xsl:value-of select="$eventData" />
-  <xsl:text>.action={</xsl:text>
-    <xsl:for-each select=".//lv:question[ ./lv:action ]">
-      <xsl:if test="position() > 1">
-        <xsl:text>,</xsl:text>
-      </xsl:if>
+  <value-of select="$eventData" />
+  <text>.action={</text>
+    <for-each select=".//lv:question[ ./lv:action ]">
+      <if test="position() > 1">
+        <text>,</text>
+      </if>
 
-      <xsl:apply-templates select="." mode="build-actions">
-        <xsl:with-param name="eventData" select="$eventData" />
-      </xsl:apply-templates>
-    </xsl:for-each>
-  <xsl:text>};</xsl:text>
-</xsl:template>
+      <apply-templates select="." mode="build-actions">
+        <with-param name="eventData" select="$eventData" />
+      </apply-templates>
+    </for-each>
+  <text>};</text>
+</template>
 
 
-<xsl:template match="lv:question[ ./lv:action ]" mode="build-actions">
-  <xsl:param name="eventData" />
+<template match="lv:question[ ./lv:action ]" mode="build-actions">
+  <param name="eventData" />
 
-  <xsl:text>'</xsl:text>
-    <xsl:value-of select="@id" />
-  <xsl:text>':{</xsl:text>
+  <text>'</text>
+    <value-of select="@id" />
+  <text>':{</text>
 
     <!-- build each action -->
-    <xsl:for-each select="./lv:action">
-      <xsl:if test="position() > 1">
-        <xsl:text>,</xsl:text>
-      </xsl:if>
+    <for-each select="./lv:action">
+      <if test="position() > 1">
+        <text>,</text>
+      </if>
 
-      <xsl:apply-templates select="." mode="build-actions" />
-    </xsl:for-each>
+      <apply-templates select="." mode="build-actions" />
+    </for-each>
 
-  <xsl:text>}</xsl:text>
-</xsl:template>
+  <text>}</text>
+</template>
 
 
-<xsl:template match="lv:question/lv:action" mode="build-actions">
-  <xsl:text>'</xsl:text>
-    <xsl:value-of select="@on" />
-  <xsl:text>':function(trigger_callback,bucket,index){</xsl:text>
+<template match="lv:question/lv:action" mode="build-actions">
+  <text>'</text>
+    <value-of select="@on" />
+  <text>':function(trigger_callback,bucket,index){</text>
     <!-- no diff support yet (doesn't make sense at the time of writing) -->
-    <xsl:text>var diff={};</xsl:text>
+    <text>var diff={};</text>
 
     <!-- compile triggers -->
-    <xsl:apply-templates select="./lv:trigger" mode="gen-trigger">
-      <xsl:with-param name="question_id_default" select="ancestor::lv:question/@id" />
+    <apply-templates select="./lv:trigger" mode="gen-trigger">
+      <with-param name="question_id_default" select="ancestor::lv:question/@id" />
       <!-- the triggers expect an array of indexes, so just create an array
            from the single index that we were given (actions will never be
            performed on more than one index...at least not with the current
            implementation) -->
-      <xsl:with-param name="indexes" select="'[index]'" />
-    </xsl:apply-templates>
+      <with-param name="indexes" select="'[index]'" />
+    </apply-templates>
 
-  <xsl:text>}</xsl:text>
-</xsl:template>
+  <text>}</text>
+</template>
 
 
-<xsl:template name="parse-script-events">
-  <xsl:param name="type" />
-  <xsl:param name="step" />
+<template name="parse-script-events">
+  <param name="type" />
+  <param name="step" />
 
   <!-- simply inject the script (whoopie!) -->
-  <xsl:variable name="script"
+  <variable name="script"
     select="$step/lv:script[ contains( @onEvent, $type ) ]" />
 
   <!-- if a script was found, enclose it in a closure (so that the vars we
        define don't screw with the remainder of the script) and inject it
   -->
-  <xsl:if test="$script">
-    <xsl:text>(function(){</xsl:text>
-    <xsl:value-of select="$script" />
-    <xsl:text>})();</xsl:text>
-  </xsl:if>
-</xsl:template>
+  <if test="$script">
+    <text>(function(){</text>
+    <value-of select="$script" />
+    <text>})();</text>
+  </if>
+</template>
 
 
 <!--
@@ -370,42 +362,42 @@
   @param node      step        step node
   @param xs:bool   default     whether this event is the default (can be blank)
 -->
-<xsl:template name="parse-events">
-  <xsl:param name="type" />
-  <xsl:param name="eventData" />
-  <xsl:param name="step" />
-  <xsl:param name="default" select="false()" />
+<template name="parse-events">
+  <param name="type" />
+  <param name="eventData" />
+  <param name="step" />
+  <param name="default" select="false()" />
 
   <!-- locate all assertion-less triggers that are direct descendants of the step node -->
-  <xsl:variable name="triggerdata">
-    <xsl:for-each select="$step/lv:trigger[ ( $default = true() and not(@onEvent) ) or contains(@onEvent, $type) ]">
-      <xsl:apply-templates select="." mode="gen-trigger">
-        <xsl:with-param name="question_id_default" select="''" />
-      </xsl:apply-templates>
-    </xsl:for-each>
-  </xsl:variable>
+  <variable name="triggerdata">
+    <for-each select="$step/lv:trigger[ ( $default = true() and not(@onEvent) ) or contains(@onEvent, $type) ]">
+      <apply-templates select="." mode="gen-trigger">
+        <with-param name="question_id_default" select="''" />
+      </apply-templates>
+    </for-each>
+  </variable>
 
   <!-- parse scripts for this event -->
-  <xsl:variable name="scriptdata">
-    <xsl:for-each select="$step/lv:script[ contains(@onEvent, $type) ]">
-      <xsl:call-template name="parse-script-events">
-        <xsl:with-param name="type" select="$type" />
-        <xsl:with-param name="step" select="$step" />
-      </xsl:call-template>
-    </xsl:for-each>
-  </xsl:variable>
+  <variable name="scriptdata">
+    <for-each select="$step/lv:script[ contains(@onEvent, $type) ]">
+      <call-template name="parse-script-events">
+        <with-param name="type" select="$type" />
+        <with-param name="step" select="$step" />
+      </call-template>
+    </for-each>
+  </variable>
 
   <!-- append data, if we generated anything (IMPORTANT: we must not output
        anything if it is not necessary, as this is a crucial assumption made by
        the system) -->
-  <xsl:if test="( string-length( $triggerdata ) > 0 ) or ( string-length( $scriptdata ) > 0 )">
-    <xsl:value-of select="$eventData" />.<xsl:value-of select="$type" />
-    <xsl:text>=function(trigger_callback,bucket){</xsl:text>
-    <xsl:value-of select="$triggerdata" />
-    <xsl:value-of select="$scriptdata" />
-    <xsl:text>};</xsl:text>
-  </xsl:if>
-</xsl:template>
+  <if test="( string-length( $triggerdata ) > 0 ) or ( string-length( $scriptdata ) > 0 )">
+    <value-of select="$eventData" />.<value-of select="$type" />
+    <text>=function(trigger_callback,bucket){</text>
+    <value-of select="$triggerdata" />
+    <value-of select="$scriptdata" />
+    <text>};</text>
+  </if>
+</template>
 
 
 <!--
@@ -419,36 +411,36 @@
   @param xs:bool   perQuestion generate assertions for each question rather
                                than each step
 -->
-<xsl:template name="parse-assert-events">
-  <xsl:param name="type" />
-  <xsl:param name="eventData" />
-  <xsl:param name="step" />
-  <xsl:param name="default" select="false()" />
-  <xsl:param name="perQuestion" select="false()" />
+<template name="parse-assert-events">
+  <param name="type" />
+  <param name="eventData" />
+  <param name="step" />
+  <param name="default" select="false()" />
+  <param name="perQuestion" select="false()" />
 
-  <xsl:variable name="funcTop">
-    <xsl:text>=function(bucket,diff,cmatch,trigger_callback){</xsl:text>
-      <xsl:text>var fail={},failed=false,causes=[];</xsl:text>
-      <xsl:text>var retval=true;</xsl:text>
-  </xsl:variable>
+  <variable name="funcTop">
+    <text>=function(bucket,diff,cmatch,trigger_callback){</text>
+      <text>var fail={},failed=false,causes=[];</text>
+      <text>var retval=true;</text>
+  </variable>
 
-  <xsl:variable name="scripts">
+  <variable name="scripts">
     <!-- process scripts within the XML -->
-    <xsl:call-template name="parse-script-events">
-      <xsl:with-param name="type" select="$type" />
-      <xsl:with-param name="step" select="$step" />
-    </xsl:call-template>
-  </xsl:variable>
+    <call-template name="parse-script-events">
+      <with-param name="type" select="$type" />
+      <with-param name="step" select="$step" />
+    </call-template>
+  </variable>
 
-  <xsl:variable name="funcBottom">
+  <variable name="funcBottom">
       <!-- if we have no failures, return null to indicate that everything
            looks good -->
-      <xsl:text>return (failed)?fail:null;</xsl:text>
-    <xsl:text>};</xsl:text>
-  </xsl:variable>
+      <text>return (failed)?fail:null;</text>
+    <text>};</text>
+  </variable>
 
   <!-- normal, big chuncks -->
-  <xsl:if test="not($perQuestion)">
+  <if test="not($perQuestion)">
     <!-- This complicated XPath expression will find all assertions that we are
          interested in. That is:
 
@@ -463,7 +455,7 @@
            - The assertion must contain the requested event as the value of
              lv:onEvent
     -->
-    <xsl:variable name="assertions"
+    <variable name="assertions"
       select="( $step//*[local-name()='question' or local-name()='question-copy']
               | $step/..//lv:question[ @id = $step//lv:question-copy/@ref ]
               )/assert:*[ ( $default = true() and not(@lv:onEvent) ) or contains(@lv:onEvent, $type) ]
@@ -471,38 +463,38 @@
       />
 
     <!-- only add the function if we have assertions to put into it -->
-    <xsl:if test="$assertions or $scripts">
-      <xsl:value-of select="$eventData" />.<xsl:value-of select="$type" />
-      <xsl:value-of select="$funcTop" />
+    <if test="$assertions or $scripts">
+      <value-of select="$eventData" />.<value-of select="$type" />
+      <value-of select="$funcTop" />
 
-      <xsl:value-of select="$scripts" />
+      <value-of select="$scripts" />
 
       <!-- generate each of the assertions -->
-      <xsl:for-each select="$assertions">
-        <xsl:apply-templates select="." mode="gen-assert" />
-      </xsl:for-each>
+      <for-each select="$assertions">
+        <apply-templates select="." mode="gen-assert" />
+      </for-each>
 
-      <xsl:value-of select="$funcBottom" />
-    </xsl:if>
-  </xsl:if>
+      <value-of select="$funcBottom" />
+    </if>
+  </if>
   <!-- otherwise, per-question chunks -->
-  <xsl:if test="$perQuestion">
-    <xsl:value-of select="$eventData" />
-    <xsl:text>.</xsl:text>
-    <xsl:value-of select="$type" />
-    <xsl:text>={};</xsl:text>
+  <if test="$perQuestion">
+    <value-of select="$eventData" />
+    <text>.</text>
+    <value-of select="$type" />
+    <text>={};</text>
 
-    <xsl:for-each select="$step//lv:question | $step//lv:question-copy
+    <for-each select="$step//lv:question | $step//lv:question-copy
                           | $step//lv:external">
-      <xsl:call-template name="gen-per-question">
-        <xsl:with-param name="eventData" select="$eventData" />
-        <xsl:with-param name="funcTop" select="$funcTop" />
-        <xsl:with-param name="funcBottom" select="$funcBottom" />
-        <xsl:with-param name="type" select="$type" />
-      </xsl:call-template>
-    </xsl:for-each>
-  </xsl:if>
-</xsl:template>
+      <call-template name="gen-per-question">
+        <with-param name="eventData" select="$eventData" />
+        <with-param name="funcTop" select="$funcTop" />
+        <with-param name="funcBottom" select="$funcBottom" />
+        <with-param name="type" select="$type" />
+      </call-template>
+    </for-each>
+  </if>
+</template>
 
 
 <!--
@@ -516,28 +508,28 @@
   @param string type event type
   @param string id   question id (optional)
 -->
-<xsl:template name="pre-parse-question-event">
-  <xsl:param name="type" />
-  <xsl:param name="id" select="@id" />
+<template name="pre-parse-question-event">
+  <param name="type" />
+  <param name="id" select="@id" />
 
   <!-- if we don't calculate the calculated values before assertions, then
        their values may lag behind in undefined circumstances -->
-  <xsl:if test="$type = 'change'">
-    <xsl:call-template name="gen-calc-for-id">
-      <xsl:with-param name="id" select="$id" />
-    </xsl:call-template>
-  </xsl:if>
-</xsl:template>
+  <if test="$type = 'change'">
+    <call-template name="gen-calc-for-id">
+      <with-param name="id" select="$id" />
+    </call-template>
+  </if>
+</template>
 
 
-<xsl:template name="gen-calc-for-id">
-  <xsl:param name="id" />
+<template name="gen-calc-for-id">
+  <param name="id" />
 
-  <xsl:apply-templates select="//lv:calc[@ref=$id or @value=$id]" mode="gen-calc">
-    <xsl:with-param name="deps" select="true()" />
-    <xsl:with-param name="children" select="true()" />
-  </xsl:apply-templates>
-</xsl:template>
+  <apply-templates select="//lv:calc[@ref=$id or @value=$id]" mode="gen-calc">
+    <with-param name="deps" select="true()" />
+    <with-param name="children" select="true()" />
+  </apply-templates>
+</template>
 
 
 <!--
@@ -549,237 +541,237 @@
   @param string type event type
   @param string id   question id (optional)
 -->
-<xsl:template name="post-parse-question-event">
-  <xsl:param name="type" />
-  <xsl:param name="id" select="@id" />
-  <xsl:param name="eventData" />
+<template name="post-parse-question-event">
+  <param name="type" />
+  <param name="id" select="@id" />
+  <param name="eventData" />
 
-  <xsl:apply-templates select="//lv:question[ @id=$id ]" mode="post-parse-question-event">
-    <xsl:with-param name="type"      select="$type" />
-    <xsl:with-param name="id"        select="$id" />
-    <xsl:with-param name="eventData" select="$eventData" />
-  </xsl:apply-templates>
-</xsl:template>
+  <apply-templates select="//lv:question[ @id=$id ]" mode="post-parse-question-event">
+    <with-param name="type"      select="$type" />
+    <with-param name="id"        select="$id" />
+    <with-param name="eventData" select="$eventData" />
+  </apply-templates>
+</template>
 
-<xsl:template match="*" mode="post-parse-question-event" priority="1">
+<template match="*" mode="post-parse-question-event" priority="1">
   <!-- catch-all; do nothing -->
-</xsl:template>
+</template>
 
 
-<xsl:template name="gen-per-question">
-  <xsl:param name="eventData" />
-  <xsl:param name="funcTop" />
-  <xsl:param name="funcBottom" />
-  <xsl:param name="type" />
-  <xsl:param name="id" select="@id | @ref" />
+<template name="gen-per-question">
+  <param name="eventData" />
+  <param name="funcTop" />
+  <param name="funcBottom" />
+  <param name="type" />
+  <param name="id" select="@id | @ref" />
 
-  <xsl:variable name="assertions"
+  <variable name="assertions"
     select="assert:*[ contains(@lv:onEvent, $type) ]" />
 
-  <xsl:variable name="preParse">
+  <variable name="preParse">
     <!-- certain things should be done before assertions -->
-    <xsl:call-template name="pre-parse-question-event">
-      <xsl:with-param name="type" select="$type" />
-      <xsl:with-param name="id" select="$id" />
-    </xsl:call-template>
-  </xsl:variable>
+    <call-template name="pre-parse-question-event">
+      <with-param name="type" select="$type" />
+      <with-param name="id" select="$id" />
+    </call-template>
+  </variable>
 
-  <xsl:variable name="postParse">
+  <variable name="postParse">
     <!-- we may want to append some code to the function -->
-    <xsl:call-template name="post-parse-question-event">
-      <xsl:with-param name="type"      select="$type" />
-      <xsl:with-param name="id"        select="$id" />
-      <xsl:with-param name="eventData" select="$eventData" />
-    </xsl:call-template>
+    <call-template name="post-parse-question-event">
+      <with-param name="type"      select="$type" />
+      <with-param name="id"        select="$id" />
+      <with-param name="eventData" select="$eventData" />
+    </call-template>
 
     <!-- add any dynamic defaults -->
-    <xsl:call-template name="gen-dynamic-defaults">
-      <xsl:with-param name="change_id" select="$id" />
-    </xsl:call-template>
-  </xsl:variable>
+    <call-template name="gen-dynamic-defaults">
+      <with-param name="change_id" select="$id" />
+    </call-template>
+  </variable>
 
   <!-- only add the function if we have some assertions or post-parse data -->
-  <xsl:if test="
+  <if test="
       $assertions
       or ( string-length( $preParse ) > 0 )
       or ( string-length( $postParse ) > 0 )
     ">
 
-    <xsl:value-of select="$eventData" />.<xsl:value-of select="$type" />
-    <xsl:text>['</xsl:text>
-    <xsl:value-of select="$id" />
-    <xsl:text>']</xsl:text>
+    <value-of select="$eventData" />.<value-of select="$type" />
+    <text>['</text>
+    <value-of select="$id" />
+    <text>']</text>
 
-    <xsl:value-of select="$funcTop" />
+    <value-of select="$funcTop" />
 
-    <xsl:value-of select="$preParse" />
+    <value-of select="$preParse" />
 
-    <xsl:for-each select="$assertions">
-      <xsl:apply-templates select="." mode="gen-assert" />
-    </xsl:for-each>
+    <for-each select="$assertions">
+      <apply-templates select="." mode="gen-assert" />
+    </for-each>
 
     <!-- add assertions that reference this question -->
-    <xsl:for-each select="../../lv:group/*[local-name()='question' or local-name()='question-copy']/assert:*[ contains(@lv:onEvent, $type) and @value = $id ]">
-      <xsl:apply-templates select="." mode="gen-assert" />
-    </xsl:for-each>
+    <for-each select="../../lv:group/*[local-name()='question' or local-name()='question-copy']/assert:*[ contains(@lv:onEvent, $type) and @value = $id ]">
+      <apply-templates select="." mode="gen-assert" />
+    </for-each>
 
-    <xsl:value-of select="$postParse" />
+    <value-of select="$postParse" />
 
-    <xsl:value-of select="$funcBottom" />
-  </xsl:if>
-</xsl:template>
+    <value-of select="$funcBottom" />
+  </if>
+</template>
 
 
 <!-- XXX: Refactor into a common function which can simply be called here -->
-<xsl:template name="gen-dynamic-defaults">
-  <xsl:param name="change_id" />
+<template name="gen-dynamic-defaults">
+  <param name="change_id" />
 
-  <xsl:for-each select="//lv:question[@defaultTo = $change_id]">
+  <for-each select="//lv:question[@defaultTo = $change_id]">
     <!-- get default and current data and initialize an array to store the new
          data to be set -->
-    <xsl:text>(function(){</xsl:text>
-      <xsl:text>var ddata=</xsl:text>
-        <xsl:call-template name="parse-expected">
-          <xsl:with-param name="expected" select="$change_id" />
-          <xsl:with-param name="with-diff" select="true()" />
-        </xsl:call-template>
-      <xsl:text>,</xsl:text>
-      <xsl:text>curdata=</xsl:text>
-        <xsl:call-template name="parse-expected">
-          <xsl:with-param name="expected" select="@id" />
-          <xsl:with-param name="with-diff" select="true()" />
-        </xsl:call-template>
-      <xsl:text>,newdata=[],chgi=0;</xsl:text>
+    <text>(function(){</text>
+      <text>var ddata=</text>
+        <call-template name="parse-expected">
+          <with-param name="expected" select="$change_id" />
+          <with-param name="with-diff" select="true()" />
+        </call-template>
+      <text>,</text>
+      <text>curdata=</text>
+        <call-template name="parse-expected">
+          <with-param name="expected" select="@id" />
+          <with-param name="with-diff" select="true()" />
+        </call-template>
+      <text>,newdata=[],chgi=0;</text>
 
       <!-- replace only empty values -->
-      <xsl:text>for(var i in ddata){</xsl:text>
-        <xsl:text>if(curdata[i]){newdata[i]=curdata[i];continue;}</xsl:text>
-        <xsl:text>if(!ddata[i])continue;</xsl:text>
-        <xsl:text>newdata[i]=ddata[i];chgi++;</xsl:text>
-      <xsl:text>}</xsl:text>
+      <text>for(var i in ddata){</text>
+        <text>if(curdata[i]){newdata[i]=curdata[i];continue;}</text>
+        <text>if(!ddata[i])continue;</text>
+        <text>newdata[i]=ddata[i];chgi++;</text>
+      <text>}</text>
 
       <!-- don't bother doing anything if no changes are to be made -->
-      <xsl:text>if(chgi===0)return;</xsl:text>
+      <text>if(chgi===0)return;</text>
 
       <!-- perform overwrite with new data -->
-      <xsl:text>bucket.overwriteValues({'</xsl:text>
-      <xsl:value-of select="@id" />
-      <xsl:text>':newdata});</xsl:text>
-    <xsl:text>})();</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+      <text>bucket.overwriteValues({'</text>
+      <value-of select="@id" />
+      <text>':newdata});</text>
+    <text>})();</text>
+  </for-each>
+</template>
 
 
-<xsl:template name="parse-expected">
-  <xsl:param name="expected">
+<template name="parse-expected">
+  <param name="expected">
     <!-- use value attribute if available -->
-    <xsl:if test="@value">
-      <xsl:value-of select="@value" />
-    </xsl:if>
+    <if test="@value">
+      <value-of select="@value" />
+    </if>
     <!-- otherwise attempt to use value list -->
-    <xsl:if test="not( @value )">
-      <xsl:text>'</xsl:text>
-      <xsl:for-each select="assert:value">
-        <xsl:if test="position() > 1 ">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
-        <xsl:value-of select="replace( node(), &quot;'&quot;, &quot;\\'&quot; )" />
-      </xsl:for-each>
-      <xsl:text>'</xsl:text>
-    </xsl:if>
-  </xsl:param>
-  <xsl:param name="with-diff" select="false()" />
-  <xsl:param name="merge-diff" select="false()" />
-  <xsl:param name="bracket" select="true()" />
-  <xsl:param name="for-each" />
+    <if test="not( @value )">
+      <text>'</text>
+      <for-each select="assert:value">
+        <if test="position() > 1 ">
+          <text>,</text>
+        </if>
+        <value-of select="replace( node(), &quot;'&quot;, &quot;\\'&quot; )" />
+      </for-each>
+      <text>'</text>
+    </if>
+  </param>
+  <param name="with-diff" select="false()" />
+  <param name="merge-diff" select="false()" />
+  <param name="bracket" select="true()" />
+  <param name="for-each" />
 
-  <xsl:choose>
+  <choose>
     <!-- explicit value -->
-    <xsl:when test="starts-with( $expected, &quot;'&quot; )">
-      <xsl:text>[</xsl:text><xsl:value-of select="$expected" /><xsl:text>]</xsl:text>
-    </xsl:when>
+    <when test="starts-with( $expected, &quot;'&quot; )">
+      <text>[</text><value-of select="$expected" /><text>]</text>
+    </when>
 
     <!-- cmatch reference -->
-    <xsl:when test="starts-with( $expected, 'c:' )">
-      <xsl:text>((cmatch['</xsl:text>
-        <xsl:value-of select="substring-after( $expected, ':' )" />
-      <xsl:text>']||{}).indexes||[])</xsl:text>
-    </xsl:when>
+    <when test="starts-with( $expected, 'c:' )">
+      <text>((cmatch['</text>
+        <value-of select="substring-after( $expected, ':' )" />
+      <text>']||{}).indexes||[])</text>
+    </when>
 
     <!-- bucket reference -->
-    <xsl:otherwise>
+    <otherwise>
       <!-- we'll need to make this an array, since we'll be selecting a single index -->
-      <xsl:if test="@forEach and $bracket">
-        <xsl:text>[</xsl:text>
-      </xsl:if>
+      <if test="@forEach and $bracket">
+        <text>[</text>
+      </if>
 
       <!-- get the value without any index included -->
-      <xsl:variable name="field-id" select="
+      <variable name="field-id" select="
           if ( contains( $expected, '[' ) ) then
             substring-before( $expected, '[' )
           else
             $expected
         " />
 
-      <xsl:text>(</xsl:text>
-      <xsl:choose>
-        <xsl:when test="$merge-diff">
-          <xsl:text>bucket.getPendingDataByName('</xsl:text>
-            <xsl:value-of select="$field-id" />
-          <xsl:text>',diff)</xsl:text>
-        </xsl:when>
+      <text>(</text>
+      <choose>
+        <when test="$merge-diff">
+          <text>bucket.getPendingDataByName('</text>
+            <value-of select="$field-id" />
+          <text>',diff)</text>
+        </when>
 
-        <xsl:otherwise>
-          <xsl:if test="$with-diff">
-            <xsl:text>diff['</xsl:text>
-            <xsl:value-of select="$field-id" />
-            <xsl:text>'] || </xsl:text>
-          </xsl:if>
-          <xsl:text>bucket.getDataByName('</xsl:text>
-            <xsl:value-of select="$field-id" />
-          <xsl:text>')</xsl:text>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:text>)</xsl:text>
+        <otherwise>
+          <if test="$with-diff">
+            <text>diff['</text>
+            <value-of select="$field-id" />
+            <text>'] || </text>
+          </if>
+          <text>bucket.getDataByName('</text>
+            <value-of select="$field-id" />
+          <text>')</text>
+        </otherwise>
+      </choose>
+      <text>)</text>
 
-      <xsl:choose>
+      <choose>
         <!-- if an index was provided, use it -->
-        <xsl:when test="contains( $expected, '[' )">
-          <xsl:text>[</xsl:text>
-          <xsl:value-of select="substring-after( $expected, '[' )" />
-        </xsl:when>
+        <when test="contains( $expected, '[' )">
+          <text>[</text>
+          <value-of select="substring-after( $expected, '[' )" />
+        </when>
 
         <!-- if a forEach was provided, ensure we check the associated index -->
-        <xsl:when test="$for-each">
-          <xsl:text>[gi]</xsl:text>
-        </xsl:when>
+        <when test="$for-each">
+          <text>[gi]</text>
+        </when>
 
-        <xsl:otherwise>
+        <otherwise>
           <!-- nothing -->
-        </xsl:otherwise>
-      </xsl:choose>
+        </otherwise>
+      </choose>
 
-      <xsl:if test="@forEach and $bracket">
-        <xsl:text>]</xsl:text>
-      </xsl:if>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
+      <if test="@forEach and $bracket">
+        <text>]</text>
+      </if>
+    </otherwise>
+  </choose>
+</template>
 
 
-<xsl:template match="assert:success" mode="gen-assert-expected-result">
-  <xsl:text>true</xsl:text>
-</xsl:template>
-<xsl:template match="assert:failure" mode="gen-assert-expected-result">
-  <xsl:text>false</xsl:text>
-</xsl:template>
+<template match="assert:success" mode="gen-assert-expected-result">
+  <text>true</text>
+</template>
+<template match="assert:failure" mode="gen-assert-expected-result">
+  <text>false</text>
+</template>
 
-<xsl:template match="assert:success" mode="gen-assert-getset">
-  <xsl:text>Successes</xsl:text>
-</xsl:template>
-<xsl:template match="assert:failure" mode="gen-assert-getset">
-  <xsl:text>Failures</xsl:text>
-</xsl:template>
+<template match="assert:success" mode="gen-assert-getset">
+  <text>Successes</text>
+</template>
+<template match="assert:failure" mode="gen-assert-getset">
+  <text>Failures</text>
+</template>
 
 
 <!--
@@ -789,19 +781,19 @@
   otherwise the values for the contained variables would be reset for each
   group.
 -->
-<xsl:template match="
+<template match="
   assert:success[ not( preceding-sibling::assert:success ) ]
   |assert:failure[ not( preceding-sibling::assert:failure) ]
 " mode="gen-assert-group-head">
 
-  <xsl:text>var count=0;</xsl:text>
-  <xsl:text>var retval=true;</xsl:text>
+  <text>var count=0;</text>
+  <text>var retval=true;</text>
 
   <!-- this var will hold the successes or failures -->
-  <xsl:text>var results=(gi!==undefined)?[gi]:assertion.get</xsl:text>
-    <xsl:apply-templates select="." mode="gen-assert-getset" />
-  <xsl:text>();</xsl:text>
-</xsl:template>
+  <text>var results=(gi!==undefined)?[gi]:assertion.get</text>
+    <apply-templates select="." mode="gen-assert-getset" />
+  <text>();</text>
+</template>
 
 <!--
   Success/failure group footer
@@ -809,32 +801,32 @@
   This should be output only on the last of a set of success/failure groups,
   otherwise the compiled function will return prematurely.
 -->
-<xsl:template match="
+<template match="
   assert:success[ not( following-sibling::assert:success ) ]
   |assert:failure[ not( following-sibling::assert:failure) ]
 " mode="gen-assert-group-tail">
 
   <!-- if there were no assertions, default to returning the value associated
        with the type of group -->
-  <xsl:text>return(count==0)?</xsl:text>
-    <xsl:apply-templates select="." mode="gen-assert-expected-result" />
-  <xsl:text>:retval;</xsl:text>
-</xsl:template>
+  <text>return(count==0)?</text>
+    <apply-templates select="." mode="gen-assert-expected-result" />
+  <text>:retval;</text>
+</template>
 
 
 <!--
   Compile sub-assertions and triggers associated with a particular
   success/failure group.
 -->
-<xsl:template match="assert:success|assert:failure" mode="gen-assert-group">
-  <xsl:param name="question_id" />
+<template match="assert:success|assert:failure" mode="gen-assert-group">
+  <param name="question_id" />
 
-  <xsl:variable name="self" select="." />
+  <variable name="self" select="." />
 
   <!-- e.g. Successes/Failures to be translated into get*/set* -->
-  <xsl:variable name="result-getset">
-    <xsl:apply-templates select="." mode="gen-assert-getset" />
-  </xsl:variable>
+  <variable name="result-getset">
+    <apply-templates select="." mode="gen-assert-getset" />
+  </variable>
 
   <!-- Boolean value representing what result we would expected to be a "good
        thing" for this group with regards to sub-assertions; that is, in a
@@ -842,324 +834,324 @@
        not do anything. However, in a failure group, succeeding sub-assertions
        would require that we take another action (since failure is no longer
        the case). -->
-  <xsl:variable name="expected-result">
-    <xsl:apply-templates select="." mode="gen-assert-expected-result" />
-  </xsl:variable>
+  <variable name="expected-result">
+    <apply-templates select="." mode="gen-assert-expected-result" />
+  </variable>
 
-  <xsl:apply-templates select="." mode="gen-assert-group-head" />
+  <apply-templates select="." mode="gen-assert-group-head" />
 
-  <xsl:if test="@associative">
+  <if test="@associative">
     <!-- if we are NOT nested inside a previous associative assertion,
          then get the list of failed items.
 
          otherwise, use the previously failed index to ensure we do not
          break the mapping (FS#5769) -->
-    <xsl:if test="not( ../@associative )">
+    <if test="not( ../@associative )">
       <!-- get results from the previous (failed) assertion -->
-      <xsl:text>var i=0,len=results.length;</xsl:text>
-    </xsl:if>
+      <text>var i=0,len=results.length;</text>
+    </if>
 
       <!-- triggers (must be done before looping to ensure the original
            results are triggered ) -->
-      <xsl:apply-templates select="./lv:trigger" mode="gen-trigger">
-        <xsl:with-param name="question_id_default" select="$question_id" />
-        <xsl:with-param name="indexes" select="'results'" />
-      </xsl:apply-templates>
+      <apply-templates select="./lv:trigger" mode="gen-trigger">
+        <with-param name="question_id_default" select="$question_id" />
+        <with-param name="indexes" select="'results'" />
+      </apply-templates>
 
-    <xsl:if test="not( ../@associative )">
+    <if test="not( ../@associative )">
       <!-- loop over all the results -->
-      <xsl:text>for(var i=0,len=results.length;i&lt;len;i++){</xsl:text>
-    </xsl:if>
+      <text>for(var i=0,len=results.length;i&lt;len;i++){</text>
+    </if>
 
-        <xsl:text>var index=results[i];</xsl:text>
+        <text>var index=results[i];</text>
 
         <!-- We can only break out of the loop if we're actually in the
              loop. This check is unnecessary if we're not. -->
-        <xsl:if test="not( ../@associative )">
-          <xsl:text>if(index===undefined){</xsl:text>
-              <xsl:text>continue;</xsl:text>
-          <xsl:text>}</xsl:text>
-        </xsl:if>
+        <if test="not( ../@associative )">
+          <text>if(index===undefined){</text>
+              <text>continue;</text>
+          <text>}</text>
+        </if>
 
         <!-- generates success array for this index -->
-        <xsl:text>var this_result = [];this_result[i]=i;</xsl:text>
+        <text>var this_result = [];this_result[i]=i;</text>
 
-        <xsl:if test="./assert:*">
-          <xsl:text>var result=</xsl:text>
-            <xsl:for-each select="./assert:*">
+        <if test="./assert:*">
+          <text>var result=</text>
+            <for-each select="./assert:*">
               <!-- join siblings with a logical and -->
-              <xsl:if test="position() > 1">
-                <xsl:text>&amp;&amp;</xsl:text>
-              </xsl:if>
+              <if test="position() > 1">
+                <text>&amp;&amp;</text>
+              </if>
 
               <!-- XXX: we'll need to do a bit more refactoring to resolve this mess -->
-              <xsl:variable name="fail-index">
-                <xsl:if test="local-name( $self ) = 'failure'">
-                  <xsl:text>this_result</xsl:text>
-                </xsl:if>
-              </xsl:variable>
+              <variable name="fail-index">
+                <if test="local-name( $self ) = 'failure'">
+                  <text>this_result</text>
+                </if>
+              </variable>
 
-              <xsl:apply-templates select="." mode="gen-assert">
-                <xsl:with-param name="question_id_default" select="$question_id" />
-                <xsl:with-param name="trackCount" select="true()" />
-                <xsl:with-param name="failIndex" select="$fail-index" />
-                <xsl:with-param name="result-var" select="'index'" />
-                <xsl:with-param name="givenPrefix">
-                  <xsl:text>[</xsl:text>
-                </xsl:with-param>
-                <xsl:with-param name="givenSuffix">
-                  <xsl:text>[index]]</xsl:text>
-                </xsl:with-param>
+              <apply-templates select="." mode="gen-assert">
+                <with-param name="question_id_default" select="$question_id" />
+                <with-param name="trackCount" select="true()" />
+                <with-param name="failIndex" select="$fail-index" />
+                <with-param name="result-var" select="'index'" />
+                <with-param name="givenPrefix">
+                  <text>[</text>
+                </with-param>
+                <with-param name="givenSuffix">
+                  <text>[index]]</text>
+                </with-param>
                 <!-- suppress semicolon at the end of the block so that
                      they may be chained -->
-                <xsl:with-param name="semicolon" select="false()" />
-              </xsl:apply-templates>
-            </xsl:for-each>
-            <xsl:text>;</xsl:text>
+                <with-param name="semicolon" select="false()" />
+              </apply-templates>
+            </for-each>
+            <text>;</text>
 
           <!-- remove from success list if failed -->
-          <xsl:text>if(result!==</xsl:text>
-            <xsl:value-of select="$expected-result" />
-          <xsl:text>){</xsl:text>
-              <xsl:text>delete results[i];</xsl:text>
-          <xsl:text>}else{retval=false;}</xsl:text>
-       </xsl:if>
+          <text>if(result!==</text>
+            <value-of select="$expected-result" />
+          <text>){</text>
+              <text>delete results[i];</text>
+          <text>}else{retval=false;}</text>
+       </if>
 
     <!-- we will have only looped if we aren't a nested associative
          success -->
-    <xsl:if test="not( ../@associative )">
-      <xsl:text>}</xsl:text>
-    </xsl:if>
+    <if test="not( ../@associative )">
+      <text>}</text>
+    </if>
 
-    <xsl:text>assertion.set</xsl:text>
-      <xsl:value-of select="$result-getset" />
-    <xsl:text>(results);</xsl:text>
-  </xsl:if>
+    <text>assertion.set</text>
+      <value-of select="$result-getset" />
+    <text>(results);</text>
+  </if>
 
   <!-- non-associative triggers -->
-  <xsl:if test="not( @associative )">
-    <xsl:apply-templates select="./lv:trigger" mode="gen-trigger">
-      <xsl:with-param name="question_id_default" select="$question_id" />
-      <xsl:with-param name="indexes" select="'results'" />
-    </xsl:apply-templates>
+  <if test="not( @associative )">
+    <apply-templates select="./lv:trigger" mode="gen-trigger">
+      <with-param name="question_id_default" select="$question_id" />
+      <with-param name="indexes" select="'results'" />
+    </apply-templates>
 
-    <xsl:apply-templates select="./assert:*" mode="gen-assert">
-      <xsl:with-param name="question_id_default" select="$question_id" />
-      <xsl:with-param name="trackCount" select="true()" />
-    </xsl:apply-templates>
-  </xsl:if>
+    <apply-templates select="./assert:*" mode="gen-assert">
+      <with-param name="question_id_default" select="$question_id" />
+      <with-param name="trackCount" select="true()" />
+    </apply-templates>
+  </if>
 
-  <xsl:apply-templates select="." mode="gen-assert-group-tail" />
-</xsl:template>
+  <apply-templates select="." mode="gen-assert-group-tail" />
+</template>
 
 
-<xsl:template match="assert:*" mode="gen-assert">
-  <xsl:param name="question_id_default" select="if ( ../@id ) then ../@id else ../@ref" />
-  <xsl:param name="expected">
-    <xsl:call-template name="parse-expected">
-      <xsl:with-param name="with-diff" select="true()" />
-      <xsl:with-param name="for-each" select="@forEach" />
-    </xsl:call-template>
-  </xsl:param>
-  <xsl:param name="name" select="local-name(.)" />
-  <xsl:param name="trackCount" select="false()" />
-  <xsl:param name="failIndex" />
+<template match="assert:*" mode="gen-assert">
+  <param name="question_id_default" select="if ( ../@id ) then ../@id else ../@ref" />
+  <param name="expected">
+    <call-template name="parse-expected">
+      <with-param name="with-diff" select="true()" />
+      <with-param name="for-each" select="@forEach" />
+    </call-template>
+  </param>
+  <param name="name" select="local-name(.)" />
+  <param name="trackCount" select="false()" />
+  <param name="failIndex" />
 
   <!-- used for cmatch checks -->
-  <xsl:param name="result-var" />
+  <param name="result-var" />
 
   <!-- TODO: There's better ways of doing this; this will simply allow us to
        suppress the semicolon insertion at the end of the generated block so
        that the assertions may be chained -->
-  <xsl:param name="semicolon" select="true()" />
+  <param name="semicolon" select="true()" />
 
-  <xsl:param name="ref" select="@ref" />
-  <xsl:param name="question_id" select="if ( $ref ) then $ref else $question_id_default" />
-  <xsl:param name="root_question_id" select="ancestor::lv:question/@id|ancestor::lv:question-copy/@ref" />
+  <param name="ref" select="@ref" />
+  <param name="question_id" select="if ( $ref ) then $ref else $question_id_default" />
+  <param name="root_question_id" select="ancestor::lv:question/@id|ancestor::lv:question-copy/@ref" />
 
   <!-- generate question id to reference on failure (@failOn can be used on an
        assertion to override this) -->
-  <xsl:param name="failOn" select="@failOn" />
-  <xsl:param name="failure_question_id" select="$root_question_id" />
+  <param name="failOn" select="@failOn" />
+  <param name="failure_question_id" select="$root_question_id" />
 
-  <xsl:param name="givenPrefix" select="''" />
-  <xsl:param name="givenSuffix" select="''" />
+  <param name="givenPrefix" select="''" />
+  <param name="givenSuffix" select="''" />
 
-  <xsl:param name="is-cref" select="starts-with( $question_id, 'c:' )" />
-  <xsl:param name="given">
-    <xsl:choose>
-      <xsl:when test="$is-cref">
-        <xsl:text>(((cmatch||{__classes:{}}).__classes['</xsl:text>
-          <xsl:value-of select="substring-after( $question_id, ':' )" />
-        <xsl:text>']||{}).indexes||[])</xsl:text>
-      </xsl:when>
+  <param name="is-cref" select="starts-with( $question_id, 'c:' )" />
+  <param name="given">
+    <choose>
+      <when test="$is-cref">
+        <text>(((cmatch||{__classes:{}}).__classes['</text>
+          <value-of select="substring-after( $question_id, ':' )" />
+        <text>']||{}).indexes||[])</text>
+      </when>
 
-      <xsl:otherwise>
+      <otherwise>
         <!-- if we're looking at a specific index, we need to ensure the result is
              still an array -->
-        <xsl:if test="contains( $question_id, '[' )">
-          <xsl:text>[</xsl:text>
-        </xsl:if>
+        <if test="contains( $question_id, '[' )">
+          <text>[</text>
+        </if>
 
-        <xsl:value-of select="$givenPrefix" />
-        <xsl:call-template name="parse-expected">
-          <xsl:with-param name="expected" select="$question_id" />
-          <xsl:with-param name="with-diff" select="true()" />
-          <xsl:with-param name="bracket" select="false()" />
-        </xsl:call-template>
-        <xsl:value-of select="$givenSuffix" />
+        <value-of select="$givenPrefix" />
+        <call-template name="parse-expected">
+          <with-param name="expected" select="$question_id" />
+          <with-param name="with-diff" select="true()" />
+          <with-param name="bracket" select="false()" />
+        </call-template>
+        <value-of select="$givenSuffix" />
 
         <!-- if we're looking at a specific index, we need to ensure the result is
              still an array -->
-        <xsl:if test="contains( $question_id, '[' )">
-          <xsl:text>]</xsl:text>
-        </xsl:if>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:param>
+        <if test="contains( $question_id, '[' )">
+          <text>]</text>
+        </if>
+      </otherwise>
+    </choose>
+  </param>
 
   <!-- make debugging a little easier -->
-  <xsl:variable name="marker">
-    <xsl:copy-of select="name()" />
+  <variable name="marker">
+    <copy-of select="name()" />
 
-    <xsl:for-each select="@*">
-      <xsl:text> </xsl:text>
+    <for-each select="@*">
+      <text> </text>
 
-      <xsl:value-of select="local-name()" />
-      <xsl:text>=</xsl:text>
-      <xsl:value-of select="." />
-    </xsl:for-each>
-  </xsl:variable>
+      <value-of select="local-name()" />
+      <text>=</text>
+      <value-of select="." />
+    </for-each>
+  </variable>
 
-  <xsl:text>/***begin </xsl:text>
-    <xsl:value-of select="$marker" />
-  <xsl:text>***/</xsl:text>
+  <text>/***begin </text>
+    <value-of select="$marker" />
+  <text>***/</text>
 
   <!-- whether to do assertion value by value -->
-  <xsl:variable name="forEach" select="if ( @forEach = 'true' ) then true() else false()" />
+  <variable name="forEach" select="if ( @forEach = 'true' ) then true() else false()" />
 
   <!-- whether the assertion is internal only -->
-  <xsl:variable name="internalOnly" select="if ( @lv:internal = 'true' ) then true() else false()" />
+  <variable name="internalOnly" select="if ( @lv:internal = 'true' ) then true() else false()" />
 
   <!-- classification to which this assertion applies -->
-  <xsl:variable name="when-ignore" select="@whenIgnore" />
+  <variable name="when-ignore" select="@whenIgnore" />
 
   <!-- message to display on error -->
-  <xsl:variable name="message">
-    <xsl:if test="./assert:message">
-      <xsl:apply-templates select="./assert:message" />
-    </xsl:if>
-    <xsl:if test="not(./assert:message)">
-      <xsl:text>The value for "</xsl:text>
-        <xsl:value-of select="if ( $ref ) then //lv:question[@id=$ref]/@label else ../@label" />
-      <xsl:text>" </xsl:text>
-      <xsl:apply-templates select="." mode="assert-default-message" />
-    </xsl:if>
-  </xsl:variable>
+  <variable name="message">
+    <if test="./assert:message">
+      <apply-templates select="./assert:message" />
+    </if>
+    <if test="not(./assert:message)">
+      <text>The value for "</text>
+        <value-of select="if ( $ref ) then //lv:question[@id=$ref]/@label else ../@label" />
+      <text>" </text>
+      <apply-templates select="." mode="assert-default-message" />
+    </if>
+  </variable>
 
   <!-- whether the message is dynamic -->
-  <xsl:variable name="message-dynamic" select="./assert:message/lv:*" />
+  <variable name="message-dynamic" select="./assert:message/lv:*" />
 
   <!-- the assertion we'll be calling -->
-  <xsl:variable name="assertion">
-    <xsl:text>BaseAssertions.</xsl:text><xsl:value-of select="$name" />
-  </xsl:variable>
+  <variable name="assertion">
+    <text>BaseAssertions.</text><value-of select="$name" />
+  </variable>
 
   <!-- success group callback -->
-  <xsl:variable name="success">
-    <xsl:text>/***s </xsl:text>
-      <xsl:value-of select="$marker" />
-    <xsl:text>***/</xsl:text>
+  <variable name="success">
+    <text>/***s </text>
+      <value-of select="$marker" />
+    <text>***/</text>
 
-    <xsl:choose>
-      <xsl:when test="./assert:success">
-        <xsl:text>function(){</xsl:text>
-          <xsl:apply-templates select="./assert:success" mode="gen-assert-group">
-            <xsl:with-param name="question_id" select="$question_id" />
-          </xsl:apply-templates>
-        <xsl:text>}</xsl:text>
-      </xsl:when>
+    <choose>
+      <when test="./assert:success">
+        <text>function(){</text>
+          <apply-templates select="./assert:success" mode="gen-assert-group">
+            <with-param name="question_id" select="$question_id" />
+          </apply-templates>
+        <text>}</text>
+      </when>
 
       <!-- no success group -->
-      <xsl:otherwise>
-        <xsl:text>null</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
+      <otherwise>
+        <text>null</text>
+      </otherwise>
+    </choose>
+  </variable>
 
   <!-- failure group callback -->
-  <xsl:variable name="failure">
-    <xsl:text>/***f </xsl:text>
-      <xsl:value-of select="$marker" />
-    <xsl:text>***/</xsl:text>
+  <variable name="failure">
+    <text>/***f </text>
+      <value-of select="$marker" />
+    <text>***/</text>
 
-    <xsl:choose>
-      <xsl:when test="./assert:failure">
-        <xsl:text>function(){</xsl:text>
-          <xsl:apply-templates select="./assert:failure" mode="gen-assert-group">
-            <xsl:with-param name="question_id" select="$question_id" />
-          </xsl:apply-templates>
-        <xsl:text>}</xsl:text>
-      </xsl:when>
+    <choose>
+      <when test="./assert:failure">
+        <text>function(){</text>
+          <apply-templates select="./assert:failure" mode="gen-assert-group">
+            <with-param name="question_id" select="$question_id" />
+          </apply-templates>
+        <text>}</text>
+      </when>
 
       <!-- no failure group -->
-      <xsl:otherwise>
-        <xsl:text>null</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
+      <otherwise>
+        <text>null</text>
+      </otherwise>
+    </choose>
+  </variable>
 
   <!-- some assertions should be performed only for users logged in internally -->
-  <xsl:if test="$internalOnly">
-    <xsl:text>if(this.isInternal){</xsl:text>
-  </xsl:if>
+  <if test="$internalOnly">
+    <text>if(this.isInternal){</text>
+  </if>
 
-  <xsl:text>(function(assertion){</xsl:text>
-      <xsl:if test="$trackCount">
-        <xsl:text>count++;</xsl:text>
-      </xsl:if>
+  <text>(function(assertion){</text>
+      <if test="$trackCount">
+        <text>count++;</text>
+      </if>
 
       <!-- if forEach was given, we need to loop through them individually -->
-      <xsl:if test="$forEach = true()">
-        <xsl:text>var given_data=</xsl:text>
-        <xsl:value-of select="$given" />
-        <xsl:text>;for(var gi in given_data){</xsl:text>
-          <xsl:text>var given_val=given_data[gi];</xsl:text>
-      </xsl:if>
+      <if test="$forEach = true()">
+        <text>var given_data=</text>
+        <value-of select="$given" />
+        <text>;for(var gi in given_data){</text>
+          <text>var given_val=given_data[gi];</text>
+      </if>
       <!-- Otherwise, we have to define gi so we don't get a ReferenceError,
            UNLESS we have a previous assertion, in which case it's already
            defined. We do *not* want to clear this out if it's already defined
            because it will destroy nested assertions. (See FS#6304)
       -->
-      <xsl:if test="$forEach != true() and local-name(..)='question'">
-        <xsl:text>var gi=undefined;</xsl:text>
-      </xsl:if>
+      <if test="$forEach != true() and local-name(..)='question'">
+        <text>var gi=undefined;</text>
+      </if>
 
       <!-- Stores failure id so that it can be overridden by @failOn. This does
            not get set (so that failures will set on the parent assertion if
            @recordFailure is false -->
-      <xsl:if test="not( @recordFailure = false() )">
-        <xsl:text>var failid='</xsl:text>
-        <xsl:value-of select="if (@failOn) then @failOn else $failure_question_id" />
-        <xsl:text>';</xsl:text>
-      </xsl:if>
+      <if test="not( @recordFailure = false() )">
+        <text>var failid='</text>
+        <value-of select="if (@failOn) then @failOn else $failure_question_id" />
+        <text>';</text>
+      </if>
 
       <!-- allow ignoring cmatch @when's -->
-      <xsl:text>var when_ignore=</xsl:text>
-        <xsl:choose>
-          <xsl:when test="$when-ignore = 'true'">
-            <xsl:text>true</xsl:text>
-          </xsl:when>
+      <text>var when_ignore=</text>
+        <choose>
+          <when test="$when-ignore = 'true'">
+            <text>true</text>
+          </when>
 
-          <xsl:otherwise>
-            <xsl:text>false</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
-      <xsl:text>;</xsl:text>
+          <otherwise>
+            <text>false</text>
+          </otherwise>
+        </choose>
+      <text>;</text>
 
-      <xsl:if test="not( ancestor::assert:* )">
-        <xsl:text>var causes=[];</xsl:text>
-      </xsl:if>
+      <if test="not( ancestor::assert:* )">
+        <text>var causes=[];</text>
+      </if>
 
       <!-- we only wish to perform the assertions if the field matches its
            given classification (using the provided cmatch object);
@@ -1167,35 +1159,35 @@
            least one match (note also that we default to an any:true object,
            with the assumption being that, if no cmatch is found, then no rules
            exist for that field and we should proceed as normal) -->
-      <xsl:text>if(when_ignore||(cmatch['</xsl:text>
-        <xsl:value-of select="$question_id" />
-      <xsl:text>']||{any:true}).any){</xsl:text>
+      <text>if(when_ignore||(cmatch['</text>
+        <value-of select="$question_id" />
+      <text>']||{any:true}).any){</text>
 
-        <xsl:text>causes.push('</xsl:text>
-          <xsl:value-of select="$question_id" />
-        <xsl:text>');</xsl:text>
+        <text>causes.push('</text>
+          <value-of select="$question_id" />
+        <text>');</text>
 
         <!-- compile assertion logic -->
-        <xsl:text>if(this.doAssertion(assertion,'</xsl:text>
-          <xsl:value-of select="$question_id" />
-          <xsl:text>',</xsl:text>
-          <xsl:value-of select="$expected" />
-          <xsl:text>,</xsl:text>
-          <xsl:if test="$forEach = true()">
+        <text>if(this.doAssertion(assertion,'</text>
+          <value-of select="$question_id" />
+          <text>',</text>
+          <value-of select="$expected" />
+          <text>,</text>
+          <if test="$forEach = true()">
             <!-- must be passed in as an array -->
-            <xsl:text>[given_val]</xsl:text>
-          </xsl:if>
-          <xsl:if test="$forEach != true()">
-            <xsl:value-of select="$given" />
-          </xsl:if>
-          <xsl:text>,</xsl:text><xsl:value-of select="$success" />
-          <xsl:text>,</xsl:text><xsl:value-of select="$failure" />
-          <xsl:text>,</xsl:text>
-          <xsl:value-of select="if ( @recordFailure = false() ) then 'false' else 'true'" />
-          <xsl:text>)===false){</xsl:text>
-            <xsl:if test="not( @recordFailure = false() )">
-              <xsl:text>var r=</xsl:text>
-                <xsl:value-of select="
+            <text>[given_val]</text>
+          </if>
+          <if test="$forEach != true()">
+            <value-of select="$given" />
+          </if>
+          <text>,</text><value-of select="$success" />
+          <text>,</text><value-of select="$failure" />
+          <text>,</text>
+          <value-of select="if ( @recordFailure = false() ) then 'false' else 'true'" />
+          <text>)===false){</text>
+            <if test="not( @recordFailure = false() )">
+              <text>var r=</text>
+                <value-of select="
                     if ( $forEach = true() ) then
                       '[gi]'
                     else if ( string-length( $result-var ) > 0 ) then
@@ -1203,554 +1195,554 @@
                     else
                       'assertion.getFailures()'
                   " />
-              <xsl:text>;</xsl:text>
+              <text>;</text>
 
               <!-- at this point, filter out all indexes that do not match the
                    given classification -->
-              <xsl:text>var indexes=this.cmatchCheck((cmatch['</xsl:text>
-                <xsl:value-of select="$root_question_id" />
-              <xsl:text>']||{}).indexes,r);</xsl:text>
+              <text>var indexes=this.cmatchCheck((cmatch['</text>
+                <value-of select="$root_question_id" />
+              <text>']||{}).indexes,r);</text>
 
               <!-- proceed only if there's valid indexes remaining -->
-              <xsl:text>if((indexes===true)||indexes.length){</xsl:text>
-                  <xsl:choose>
+              <text>if((indexes===true)||indexes.length){</text>
+                  <choose>
                     <!-- if the message is dynamic, then loop through each
                          individual index so that the message can be properly
                          generated for each -->
-                    <xsl:when test="$message-dynamic">
-                      <xsl:text>for(var i in indexes){</xsl:text>
-                        <xsl:text>var index=indexes[i];</xsl:text>
+                    <when test="$message-dynamic">
+                      <text>for(var i in indexes){</text>
+                        <text>var index=indexes[i];</text>
 
-                        <xsl:text>this.addFailure(fail,failid,</xsl:text>
-                        <xsl:text>[index],'</xsl:text>
-                          <xsl:value-of select="$message" />
-                        <xsl:text>',causes);</xsl:text>
-                      <xsl:text>}</xsl:text>
-                    </xsl:when>
+                        <text>this.addFailure(fail,failid,</text>
+                        <text>[index],'</text>
+                          <value-of select="$message" />
+                        <text>',causes);</text>
+                      <text>}</text>
+                    </when>
 
                     <!-- message is not dynamic; add all indexes at once -->
-                    <xsl:otherwise>
-                      <xsl:text>this.addFailure(fail,failid,</xsl:text>
-                      <xsl:text>((indexes===true)?r:indexes),'</xsl:text>
-                        <xsl:value-of select="$message" />
-                      <xsl:text>',causes);</xsl:text>
-                    </xsl:otherwise>
-                  </xsl:choose>
+                    <otherwise>
+                      <text>this.addFailure(fail,failid,</text>
+                      <text>((indexes===true)?r:indexes),'</text>
+                        <value-of select="$message" />
+                      <text>',causes);</text>
+                    </otherwise>
+                  </choose>
 
-                <xsl:text>failed=true;</xsl:text>
-              <xsl:text>}</xsl:text>
+                <text>failed=true;</text>
+              <text>}</text>
 
-              <xsl:text>retval=false;</xsl:text>
-            </xsl:if>
+              <text>retval=false;</text>
+            </if>
 
             <!-- if we specified an id to return as the failure id, set it -->
-            <xsl:if test="$failOn">
-              <xsl:text>failid='</xsl:text>
-              <xsl:value-of select="$failOn" />
-              <xsl:text>';</xsl:text>
-            </xsl:if>
+            <if test="$failOn">
+              <text>failid='</text>
+              <value-of select="$failOn" />
+              <text>';</text>
+            </if>
 
-            <xsl:if test="$forEach = false()">
-              <xsl:text>return false;</xsl:text>
-            </xsl:if>
-        <xsl:text>}</xsl:text>
-      <xsl:text>}</xsl:text>
+            <if test="$forEach = false()">
+              <text>return false;</text>
+            </if>
+        <text>}</text>
+      <text>}</text>
 
     <!-- end of forEach -->
-    <xsl:if test="$forEach = true()">
-      <xsl:text>}</xsl:text>
-      <xsl:text>return retval;</xsl:text>
-    </xsl:if>
-    <xsl:if test="$forEach != true()">
-      <xsl:text>return true;</xsl:text>
-    </xsl:if>
-  <xsl:text>}).call(this,</xsl:text>
-  <xsl:value-of select="$assertion" />
-  <xsl:text>)</xsl:text>
+    <if test="$forEach = true()">
+      <text>}</text>
+      <text>return retval;</text>
+    </if>
+    <if test="$forEach != true()">
+      <text>return true;</text>
+    </if>
+  <text>}).call(this,</text>
+  <value-of select="$assertion" />
+  <text>)</text>
 
-  <xsl:if test="$semicolon">
-    <xsl:text>;</xsl:text>
-  </xsl:if>
+  <if test="$semicolon">
+    <text>;</text>
+  </if>
 
   <!-- end of internal if stmt -->
-  <xsl:if test="$internalOnly">
-    <xsl:text>}</xsl:text>
-  </xsl:if>
-</xsl:template>
+  <if test="$internalOnly">
+    <text>}</text>
+  </if>
+</template>
 
 
-<xsl:template match="lv:trigger" mode="gen-trigger">
-  <xsl:param name="question_id_default" select="../../@id" />
-  <xsl:param name="indexes" select="'[]'" />
+<template match="lv:trigger" mode="gen-trigger">
+  <param name="question_id_default" select="../../@id" />
+  <param name="indexes" select="'[]'" />
 
-  <xsl:variable name="question_id_full" select="if ( @ref ) then @ref else $question_id_default" />
+  <variable name="question_id_full" select="if ( @ref ) then @ref else $question_id_default" />
 
-  <xsl:variable name="question_id">
-    <xsl:choose>
-      <xsl:when test="ends-with( $question_id_full, '*' )">
-        <xsl:value-of select="substring-before( $question_id_full, '*' )" />
-      </xsl:when>
+  <variable name="question_id">
+    <choose>
+      <when test="ends-with( $question_id_full, '*' )">
+        <value-of select="substring-before( $question_id_full, '*' )" />
+      </when>
 
-      <xsl:when test="ends-with( $question_id_full, ']' )">
-        <xsl:value-of select="substring-before( $question_id_full, '[' )" />
-      </xsl:when>
+      <when test="ends-with( $question_id_full, ']' )">
+        <value-of select="substring-before( $question_id_full, '[' )" />
+      </when>
 
-      <xsl:otherwise>
-        <xsl:value-of select="$question_id_full" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
+      <otherwise>
+        <value-of select="$question_id_full" />
+      </otherwise>
+    </choose>
+  </variable>
 
-  <xsl:variable name="use_indexes">
+  <variable name="use_indexes">
     <!-- if the question id ends in an asterisk, they want 'em all regardless
          of what we were given for our success list, so generate a full success
          list -->
-    <xsl:choose>
+    <choose>
       <!-- glob notation -->
-      <xsl:when test="ends-with( $question_id_full, '*' )">
-        <xsl:text>(function(){</xsl:text>
-        <xsl:text>var len=(diff['</xsl:text>
-          <xsl:value-of select="$question_id" />
-        <xsl:text>']||bucket.getDataByName('</xsl:text>
-          <xsl:value-of select="$question_id" />
-        <xsl:text>')).length,</xsl:text>
-        <xsl:text>ret=[];</xsl:text>
-        <xsl:text>for(var i=0;i&lt;len;i++){ret.push(i);}</xsl:text>
-        <xsl:text>return ret;})()</xsl:text>
-      </xsl:when>
+      <when test="ends-with( $question_id_full, '*' )">
+        <text>(function(){</text>
+        <text>var len=(diff['</text>
+          <value-of select="$question_id" />
+        <text>']||bucket.getDataByName('</text>
+          <value-of select="$question_id" />
+        <text>')).length,</text>
+        <text>ret=[];</text>
+        <text>for(var i=0;i&lt;len;i++){ret.push(i);}</text>
+        <text>return ret;})()</text>
+      </when>
 
       <!-- index notation -->
-      <xsl:when test="ends-with( $question_id_full, ']' )">
-        <xsl:variable name="index" select="
+      <when test="ends-with( $question_id_full, ']' )">
+        <variable name="index" select="
             substring-before( substring-after( $question_id_full, '[' ), ']' )
           " />
 
-        <xsl:text>[</xsl:text>
-          <xsl:value-of select="$index" />
-        <xsl:text>]</xsl:text>
-      </xsl:when>
+        <text>[</text>
+          <value-of select="$index" />
+        <text>]</text>
+      </when>
 
       <!-- otherwise, just use what we were given -->
-      <xsl:otherwise>
-        <xsl:value-of select="$indexes" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
+      <otherwise>
+        <value-of select="$indexes" />
+      </otherwise>
+    </choose>
+  </variable>
 
   <!-- determine the value -->
-  <xsl:variable name="value">
-    <xsl:choose>
+  <variable name="value">
+    <choose>
       <!-- string literal -->
-      <xsl:when test="starts-with( @value, &quot;'&quot; )">
-        <xsl:text>'</xsl:text>
+      <when test="starts-with( @value, &quot;'&quot; )">
+        <text>'</text>
           <!-- remove single quotes from the string -->
-          <xsl:value-of select="translate( @value, &quot;'&quot;, '' )" />
-        <xsl:text>'</xsl:text>
-      </xsl:when>
+          <value-of select="translate( @value, &quot;'&quot;, '' )" />
+        <text>'</text>
+      </when>
 
       <!-- no value -->
-      <xsl:when test="string-length( @value ) = 0">
-        <xsl:text>''</xsl:text>
-      </xsl:when>
+      <when test="string-length( @value ) = 0">
+        <text>''</text>
+      </when>
 
       <!-- bucket value references -->
-      <xsl:otherwise>
-        <xsl:text>(diff['</xsl:text>
-          <xsl:value-of select="@value" />
-        <xsl:text>']||bucket.getDataByName('</xsl:text>
-          <xsl:value-of select="@value" />
-        <xsl:text>'))</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
+      <otherwise>
+        <text>(diff['</text>
+          <value-of select="@value" />
+        <text>']||bucket.getDataByName('</text>
+          <value-of select="@value" />
+        <text>'))</text>
+      </otherwise>
+    </choose>
+  </variable>
 
-  <xsl:text>trigger_callback.call(this,'</xsl:text>
-  <xsl:value-of select="@event" />
-  <xsl:text>','</xsl:text>
-  <xsl:value-of select="$question_id" />
-  <xsl:text>',</xsl:text>
-  <xsl:value-of select="$value" />
-  <xsl:text>,</xsl:text>
-  <xsl:value-of select="$use_indexes" />
-  <xsl:text>);</xsl:text>
-</xsl:template>
+  <text>trigger_callback.call(this,'</text>
+  <value-of select="@event" />
+  <text>','</text>
+  <value-of select="$question_id" />
+  <text>',</text>
+  <value-of select="$value" />
+  <text>,</text>
+  <value-of select="$use_indexes" />
+  <text>);</text>
+</template>
 
 
-<xsl:template name="safe-value">
-  <xsl:param name="value">
-    <xsl:if test="starts-with( @value, &quot;'&quot; )">
-      <xsl:value-of select="@value" />
-    </xsl:if>
+<template name="safe-value">
+  <param name="value">
+    <if test="starts-with( @value, &quot;'&quot; )">
+      <value-of select="@value" />
+    </if>
 
     <!-- if the value is a reference, then use the label of that question -->
-    <xsl:if test="not( starts-with( @value, &quot;'&quot; ) )">
-      <xsl:variable name="ref" select="@value" />
+    <if test="not( starts-with( @value, &quot;'&quot; ) )">
+      <variable name="ref" select="@value" />
 
-      <xsl:text>"</xsl:text>
-      <xsl:value-of select="//lv:question[@id=$ref]/@label" />
-      <xsl:text>"</xsl:text>
-    </xsl:if>
-  </xsl:param>
+      <text>"</text>
+      <value-of select="//lv:question[@id=$ref]/@label" />
+      <text>"</text>
+    </if>
+  </param>
 
   <!-- escape single quotes -->
-  <xsl:value-of select="replace( $value, &quot;'&quot;, &quot;\\'&quot; )" />
-</xsl:template>
+  <value-of select="replace( $value, &quot;'&quot;, &quot;\\'&quot; )" />
+</template>
 
 
 <!-- default assertion messages -->
-<xsl:template match="assert:*" mode="assert-default-message">
-  <xsl:text>is invalid</xsl:text>
-</xsl:template>
+<template match="assert:*" mode="assert-default-message">
+  <text>is invalid</text>
+</template>
 
-<xsl:template match="assert:equals" mode="assert-default-message" priority="2">
-  <xsl:text>must be equal to </xsl:text>
-  <xsl:call-template name="safe-value" />
-</xsl:template>
+<template match="assert:equals" mode="assert-default-message" priority="2">
+  <text>must be equal to </text>
+  <call-template name="safe-value" />
+</template>
 
-<xsl:template match="assert:notEqual" mode="assert-default-message" priority="2">
-  <xsl:text>must not be equal to </xsl:text>
-  <xsl:call-template name="safe-value" />
-</xsl:template>
+<template match="assert:notEqual" mode="assert-default-message" priority="2">
+  <text>must not be equal to </text>
+  <call-template name="safe-value" />
+</template>
 
-<xsl:template match="assert:in" mode="assert-default-message" priority="2">
-  <xsl:text>must not be equal to any of the following values: </xsl:text>
-  <xsl:call-template name="safe-value" />
-</xsl:template>
+<template match="assert:in" mode="assert-default-message" priority="2">
+  <text>must not be equal to any of the following values: </text>
+  <call-template name="safe-value" />
+</template>
 
-<xsl:template match="assert:any" mode="assert-default-message" priority="2">
-  <xsl:text>must be equal to one of the following values: </xsl:text>
-  <xsl:call-template name="safe-value" />
-</xsl:template>
+<template match="assert:any" mode="assert-default-message" priority="2">
+  <text>must be equal to one of the following values: </text>
+  <call-template name="safe-value" />
+</template>
 
-<xsl:template match="assert:lessThan" mode="assert-default-message" priority="2">
-  <xsl:text>must be less than </xsl:text>
-  <xsl:call-template name="safe-value" />
-</xsl:template>
+<template match="assert:lessThan" mode="assert-default-message" priority="2">
+  <text>must be less than </text>
+  <call-template name="safe-value" />
+</template>
 
-<xsl:template match="assert:greaterThan" mode="assert-default-message" priority="2">
-  <xsl:text>must be greater than </xsl:text>
-  <xsl:call-template name="safe-value" />
-</xsl:template>
+<template match="assert:greaterThan" mode="assert-default-message" priority="2">
+  <text>must be greater than </text>
+  <call-template name="safe-value" />
+</template>
 
-<xsl:template match="assert:range" mode="assert-default-message" priority="2">
-  <xsl:text>must be within the range </xsl:text>
-  <xsl:call-template name="safe-value" />
-</xsl:template>
+<template match="assert:range" mode="assert-default-message" priority="2">
+  <text>must be within the range </text>
+  <call-template name="safe-value" />
+</template>
 
-<xsl:template match="assert:regex" mode="assert-default-message" priority="2">
-  <xsl:text>must match the following regular expression: </xsl:text>
-  <xsl:call-template name="safe-value" />
-</xsl:template>
+<template match="assert:regex" mode="assert-default-message" priority="2">
+  <text>must match the following regular expression: </text>
+  <call-template name="safe-value" />
+</template>
 
-<xsl:template match="assert:empty" mode="assert-default-message" priority="2">
-  <xsl:text>must be empty</xsl:text>
-  <xsl:call-template name="safe-value" />
-</xsl:template>
+<template match="assert:empty" mode="assert-default-message" priority="2">
+  <text>must be empty</text>
+  <call-template name="safe-value" />
+</template>
 
-<xsl:template match="assert:notEmpty" mode="assert-default-message" priority="2">
-  <xsl:text>must not be empty</xsl:text>
-  <xsl:call-template name="safe-value" />
-</xsl:template>
+<template match="assert:notEmpty" mode="assert-default-message" priority="2">
+  <text>must not be empty</text>
+  <call-template name="safe-value" />
+</template>
 
-<xsl:template match="assert:message/text()">
-  <xsl:value-of select="normalize-space(.)" />
-</xsl:template>
+<template match="assert:message/text()">
+  <value-of select="normalize-space(.)" />
+</template>
 
-<xsl:template match="assert:message/assert:value">
-  <xsl:call-template name="safe-value">
-    <xsl:with-param name="value" select="../../@value" />
-  </xsl:call-template>
-</xsl:template>
+<template match="assert:message/assert:value">
+  <call-template name="safe-value">
+    <with-param name="value" select="../../@value" />
+  </call-template>
+</template>
 
-<xsl:template match="assert:message/lv:answer">
-  <xsl:param name="bucketVar" select="'bucket'" />
-  <xsl:param name="indexVar" select="'index'" />
+<template match="assert:message/lv:answer">
+  <param name="bucketVar" select="'bucket'" />
+  <param name="indexVar" select="'index'" />
 
-  <xsl:text>'+</xsl:text>
-  <xsl:value-of select="$bucketVar" />
-  <xsl:text>.getDataByName('</xsl:text>
-  <xsl:value-of select="@ref" />
-  <xsl:text>')[</xsl:text>
-  <xsl:value-of select="$indexVar" />
-  <xsl:text>]+'</xsl:text>
-</xsl:template>
+  <text>'+</text>
+  <value-of select="$bucketVar" />
+  <text>.getDataByName('</text>
+  <value-of select="@ref" />
+  <text>')[</text>
+  <value-of select="$indexVar" />
+  <text>]+'</text>
+</template>
 
 
 <!--
     Builds an associative array of help text for each question, if help
     text was provided
 -->
-<xsl:template name="build-help">
-  <xsl:for-each select="//lv:question/lv:help">
+<template name="build-help">
+  <for-each select="//lv:question/lv:help">
     <!-- add delimiter -->
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:value-of select="../@id" /><xsl:text>:'</xsl:text>
+    <value-of select="../@id" /><text>:'</text>
     <!-- escape single quotes -->
-    <xsl:value-of select="replace( replace( node(), '\n| +', ' ' ), &quot;'&quot;, &quot;\\'&quot; )" />
-    <xsl:text>'</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <value-of select="replace( replace( node(), '\n| +', ' ' ), &quot;'&quot;, &quot;\\'&quot; )" />
+    <text>'</text>
+  </for-each>
+</template>
 
 
-<xsl:template name="build-internal">
+<template name="build-internal">
   <!-- let's be flexible -->
-  <xsl:for-each select="
+  <for-each select="
       //lv:*[not(local-name()='item')][
         @internal='true'
         and ( @id or @ref )
       ]
     ">
     <!-- add delimiter -->
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
-    <xsl:text>'</xsl:text>
-    <xsl:value-of select="@id|@ref" />
-    <xsl:text>':1</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
+    <text>'</text>
+    <value-of select="@id|@ref" />
+    <text>':1</text>
+  </for-each>
+</template>
 
 
 <!--
     Builds object containing question defaults
 -->
-<xsl:template name="build-defaults">
-  <xsl:for-each select="
+<template name="build-defaults">
+  <for-each select="
       //lv:question
       |//lv:external[ @type ]
     ">
     <!-- add delimiter -->
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-    <xsl:value-of select="@id" />
-    <xsl:text>':'</xsl:text>
-    <xsl:apply-templates select="." mode="get-default" />
-    <xsl:text>'</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>'</text>
+    <value-of select="@id" />
+    <text>':'</text>
+    <apply-templates select="." mode="get-default" />
+    <text>'</text>
+  </for-each>
+</template>
 
 
-<xsl:template name="build-display-defaults">
+<template name="build-display-defaults">
   <!-- sets have to be handled differently to ensure we generate a default for
        each potential element -->
-  <xsl:for-each select="//lv:display[ string-length( @default ) > 0 ]">
-    <xsl:variable name="i" select="position()" />
+  <for-each select="//lv:display[ string-length( @default ) > 0 ]">
+    <variable name="i" select="position()" />
 
-    <xsl:variable name="id" select="@ref" />
-    <xsl:variable name="default" select="@default" />
+    <variable name="id" select="@ref" />
+    <variable name="default" select="@default" />
 
     <!-- if this display value is not part of a set, then we have a fairly
          simple job (single id, single default) -->
-    <xsl:if test="not( ../@each )">
+    <if test="not( ../@each )">
       <!-- output delimiter if this is not our first value -->
-      <xsl:if test="$i > 1">
-        <xsl:text>,</xsl:text>
-      </xsl:if>
+      <if test="$i > 1">
+        <text>,</text>
+      </if>
 
-      <xsl:text>'</xsl:text>
-      <xsl:value-of select="$id" />
-      <xsl:text>':'</xsl:text>
-      <xsl:value-of select="$default" />
-      <xsl:text>'</xsl:text>
-    </xsl:if>
+      <text>'</text>
+      <value-of select="$id" />
+      <text>':'</text>
+      <value-of select="$default" />
+      <text>'</text>
+    </if>
 
     <!-- if we have a set, loop through each set item, generate the ids and
          determine the appropriate default -->
-    <xsl:if test="../@each">
-      <xsl:for-each select="tokenize( ../@each, ' ' )">
-        <xsl:variable name="pos" select="position()" />
+    <if test="../@each">
+      <for-each select="tokenize( ../@each, ' ' )">
+        <variable name="pos" select="position()" />
 
         <!-- use pipes as delimiters rather than commas or spaces, since
              they're not likely to occur in a default value -->
-        <xsl:variable name="defaults" select="tokenize( $default, '\|' )" />
+        <variable name="defaults" select="tokenize( $default, '\|' )" />
 
         <!-- output delimiter if necessary -->
-        <xsl:if test="( $i > 1 ) or ( $pos > 1 )">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
+        <if test="( $i > 1 ) or ( $pos > 1 )">
+          <text>,</text>
+        </if>
 
         <!-- prefix id -->
-        <xsl:text>'</xsl:text>
-        <xsl:value-of select="." /><xsl:text>_</xsl:text>
-        <xsl:value-of select="$id" />
-        <xsl:text>':'</xsl:text>
+        <text>'</text>
+        <value-of select="." /><text>_</text>
+        <value-of select="$id" />
+        <text>':'</text>
         <!-- if there's a single default, use it for all of them -->
-        <xsl:value-of select="if ( count( $defaults ) > 1 ) then $defaults[ $pos ] else $defaults[ 1 ]" />
-        <xsl:text>'</xsl:text>
-      </xsl:for-each>
-    </xsl:if>
-  </xsl:for-each>
-</xsl:template>
+        <value-of select="if ( count( $defaults ) > 1 ) then $defaults[ $pos ] else $defaults[ 1 ]" />
+        <text>'</text>
+      </for-each>
+    </if>
+  </for-each>
+</template>
 
 
 <!--
   Determines which field will be used to determine the group index count
 -->
-<xsl:template name="build-group-index-fields">
-  <xsl:for-each select="//lv:group">
+<template name="build-group-index-fields">
+  <for-each select="//lv:group">
     <!-- add delimiter -->
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-      <xsl:value-of select="@id" />
-    <xsl:text>':</xsl:text>
+    <text>'</text>
+      <value-of select="@id" />
+    <text>':</text>
 
-    <xsl:text>'</xsl:text>
-      <xsl:choose>
+    <text>'</text>
+      <choose>
         <!-- if we have been given a field to explicitly use as the index base,
              then use it -->
-        <xsl:when test="@indexedBy">
-          <xsl:value-of select="@indexedBy" />
-        </xsl:when>
+        <when test="@indexedBy">
+          <value-of select="@indexedBy" />
+        </when>
 
         <!-- otherwise, we'll use the first ref in the group -->
-        <xsl:otherwise>
-          <xsl:variable name="refs" select="
+        <otherwise>
+          <variable name="refs" select="
               lv:question
               |lv:question-copy
               |lv:answer
               |lv:display
             " />
-          <xsl:variable name="first" select="$refs[1]" />
+          <variable name="first" select="$refs[1]" />
 
           <!-- ref takes precedence -->
-          <xsl:choose>
-            <xsl:when test="$first/@ref">
-              <xsl:value-of select="$first/@ref" />
-            </xsl:when>
+          <choose>
+            <when test="$first/@ref">
+              <value-of select="$first/@ref" />
+            </when>
 
-            <xsl:otherwise>
-              <xsl:value-of select="$first/@id" />
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:otherwise>
-      </xsl:choose>
-    <xsl:text>'</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+            <otherwise>
+              <value-of select="$first/@id" />
+            </otherwise>
+          </choose>
+        </otherwise>
+      </choose>
+    <text>'</text>
+  </for-each>
+</template>
 
 
 <!--
     Builds object containing field names for each group
 -->
-<xsl:template name="build-group-fields">
-  <xsl:param name="linked" select="true()" />
-  <xsl:param name="visonly" select="false()" />
+<template name="build-group-fields">
+  <param name="linked" select="true()" />
+  <param name="visonly" select="false()" />
 
-  <xsl:for-each select="//lv:group">
+  <for-each select="//lv:group">
     <!-- add delimiter -->
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-    <xsl:value-of select="@id" />
-    <xsl:text>':[</xsl:text>
+    <text>'</text>
+    <value-of select="@id" />
+    <text>':[</text>
 
-    <xsl:variable name="refs"
+    <variable name="refs"
                   select="lv:question
                           |lv:question/lv:option[ @id ]
                           |lv:static[ @id ]
                           |lv:question-copy" />
 
-    <xsl:for-each select="$refs">
+    <for-each select="$refs">
       <!-- add delimiter -->
-      <xsl:if test="position() > 1">
-        <xsl:text>,</xsl:text>
-      </xsl:if>
+      <if test="position() > 1">
+        <text>,</text>
+      </if>
 
-      <xsl:text>'</xsl:text>
-      <xsl:value-of select="@id|@ref" />
-      <xsl:text>'</xsl:text>
-    </xsl:for-each>
+      <text>'</text>
+      <value-of select="@id|@ref" />
+      <text>'</text>
+    </for-each>
 
     <!-- grab all lv:display's with ids -->
-    <xsl:for-each select="lv:display[ @id ]|lv:answer[ @id ]|lv:external[ @id and not( $visonly = true() ) ]">
+    <for-each select="lv:display[ @id ]|lv:answer[ @id ]|lv:external[ @id and not( $visonly = true() ) ]">
       <!-- add delimiter if necessary -->
-      <xsl:if test="$refs or position() > 1">
-        <xsl:text>,</xsl:text>
-      </xsl:if>
+      <if test="$refs or position() > 1">
+        <text>,</text>
+      </if>
 
-      <xsl:text>'</xsl:text>
-      <xsl:value-of select="@id" />
-      <xsl:text>'</xsl:text>
-    </xsl:for-each>
+      <text>'</text>
+      <value-of select="@id" />
+      <text>'</text>
+    </for-each>
 
-    <xsl:variable name="thisId" select="@id" />
-    <xsl:variable name="link" select="@link" />
+    <variable name="thisId" select="@id" />
+    <variable name="link" select="@link" />
 
     <!-- any links? -->
-    <xsl:if test="$linked and $link">
+    <if test="$linked and $link">
       <!-- todo: question-ref -->
-      <xsl:for-each select="//lv:group[ ( @link = $link ) and ( @id != $thisId ) ]">
-        <xsl:for-each select="lv:question|lv:static[@id]">
+      <for-each select="//lv:group[ ( @link = $link ) and ( @id != $thisId ) ]">
+        <for-each select="lv:question|lv:static[@id]">
           <!-- add delimiter (since groups must contain at least one question,
                there's always going to be a value before the delimiter from the
                origin group -->
-          <xsl:text>,</xsl:text>
+          <text>,</text>
 
-          <xsl:text>'</xsl:text>
-          <xsl:value-of select="@id" />
-          <xsl:text>'</xsl:text>
-        </xsl:for-each>
-      </xsl:for-each>
-    </xsl:if>
+          <text>'</text>
+          <value-of select="@id" />
+          <text>'</text>
+        </for-each>
+      </for-each>
+    </if>
 
-    <xsl:text>]</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>]</text>
+  </for-each>
+</template>
 
 
-<xsl:template name="build-linked-fields">
-  <xsl:variable name="root" select="/" />
+<template name="build-linked-fields">
+  <variable name="root" select="/" />
 
   <!-- build a list of all links -->
-  <xsl:variable name="links">
-    <links>
-      <xsl:for-each select="//lv:group[ @link ]">
+  <variable name="links" as="element( lv:links )">
+    <lv:links>
+      <for-each select="//lv:group[ @link ]">
         <lv:link ref="{@link}" />
-      </xsl:for-each>
-    </links>
-  </xsl:variable>
+      </for-each>
+    </lv:links>
+  </variable>
 
   <!-- build a unique list -->
-  <xsl:variable name="uniq" select="
+  <variable name="uniq" select="
       $links//lv:link[ not( @ref=preceding-sibling::lv:link/@ref ) ]
     " />
 
-  <xsl:for-each select="$uniq">
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+  <for-each select="$uniq">
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-      <xsl:value-of select="@ref" />
-    <xsl:text>':[</xsl:text>
+    <text>'</text>
+      <value-of select="@ref" />
+    <text>':[</text>
 
-      <xsl:variable name="ref" select="@ref" />
-      <xsl:variable name="groups" select="$root//lv:group[ @link=$ref ]" />
+      <variable name="ref" select="@ref" />
+      <variable name="groups" select="$root//lv:group[ @link=$ref ]" />
 
-      <xsl:for-each select="$groups//lv:question|$groups//lv:question-copy">
-        <xsl:if test="position() > 1">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
+      <for-each select="$groups//lv:question|$groups//lv:question-copy">
+        <if test="position() > 1">
+          <text>,</text>
+        </if>
 
-        <xsl:text>'</xsl:text>
-          <xsl:value-of select="@id" />
-        <xsl:text>'</xsl:text>
-      </xsl:for-each>
+        <text>'</text>
+          <value-of select="@id" />
+        <text>'</text>
+      </for-each>
 
-    <xsl:text>]</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>]</text>
+  </for-each>
+</template>
 
 
 <!--
@@ -1762,70 +1754,70 @@
 
   { 1: { "foo": true, "bar": true } }
 -->
-<xsl:template name="build-required-fields">
-  <xsl:for-each select="//lv:step">
+<template name="build-required-fields">
+  <for-each select="//lv:step">
     <!-- add delimiter (required object) -->
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
     <!-- use the current position as the step id (1-indexed) -->
-    <xsl:text>'</xsl:text>
-    <xsl:value-of select="position()" />
-    <xsl:text>':{</xsl:text>
+    <text>'</text>
+    <value-of select="position()" />
+    <text>':{</text>
 
     <!-- search for required questions that are descendents of this step -->
-    <xsl:for-each select="*//lv:question[@required='true']">
+    <for-each select="*//lv:question[@required='true']">
       <!-- add delimiter (field array) -->
-      <xsl:if test="position() > 1">
-        <xsl:text>,</xsl:text>
-      </xsl:if>
+      <if test="position() > 1">
+        <text>,</text>
+      </if>
 
-      <xsl:text>'</xsl:text>
-      <xsl:value-of select="@id" />
-      <xsl:text>': true</xsl:text>
-    </xsl:for-each>
+      <text>'</text>
+      <value-of select="@id" />
+      <text>': true</text>
+    </for-each>
 
-    <xsl:text>}</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>}</text>
+  </for-each>
+</template>
 
 
-<xsl:template name="build-field-classes">
-  <xsl:for-each select="//lv:question[ @class ]">
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+<template name="build-field-classes">
+  <for-each select="//lv:question[ @class ]">
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-      <xsl:value-of select="@id" />
-    <xsl:text>':</xsl:text>
+    <text>'</text>
+      <value-of select="@id" />
+    <text>':</text>
 
-    <xsl:text>{</xsl:text>
-      <xsl:for-each select="tokenize( @class, ' ' )">
-        <xsl:if test="position() > 1">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
+    <text>{</text>
+      <for-each select="tokenize( @class, ' ' )">
+        <if test="position() > 1">
+          <text>,</text>
+        </if>
 
-        <xsl:text>'</xsl:text>
-          <xsl:value-of select="." />
-        <xsl:text>':true</xsl:text>
-      </xsl:for-each>
-    <xsl:text>}</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+        <text>'</text>
+          <value-of select="." />
+        <text>':true</text>
+      </for-each>
+    <text>}</text>
+  </for-each>
+</template>
 
-<xsl:template name="build-field-retains">
-  <xsl:for-each select="//lv:question[ @when and @retain='true' ]">
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+<template name="build-field-retains">
+  <for-each select="//lv:question[ @when and @retain='true' ]">
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-      <xsl:value-of select="@id" />
-    <xsl:text>':true</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>'</text>
+      <value-of select="@id" />
+    <text>':true</text>
+  </for-each>
+</template>
 
 
 <!--
@@ -1834,249 +1826,249 @@
 
   Pretty much the same as build-field-classes.
 -->
-<xsl:template name="build-field-when">
-  <xsl:variable name="root" select="/" />
+<template name="build-field-when">
+  <variable name="root" select="/" />
 
   <!-- N.B. This permits a @when="", which is intentional and used! -->
-  <xsl:for-each select="//lv:*[ @when ]">
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+  <for-each select="//lv:*[ @when ]">
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:variable name="pred-ref"
+    <variable name="pred-ref"
                   select="if ( @ref and not( @when ) ) then
                             @ref
                           else
                             @id" />
 
-    <xsl:text>'</xsl:text>
-      <xsl:value-of select="@id" />
-    <xsl:text>':</xsl:text>
+    <text>'</text>
+      <value-of select="@id" />
+    <text>':</text>
 
     <!-- TODO: calc-dsl repo progui-pkg.xsl has lvp:qid-to-class -->
-    <xsl:text>["--vis-</xsl:text>
-      <xsl:sequence select="translate(
+    <text>["--vis-</text>
+      <sequence select="translate(
                             $pred-ref,
                             '_ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                             '-abcdefghijklmnopqrstuvwxyz' )" />
-    <xsl:text>"]</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>"]</text>
+  </for-each>
+</template>
 
 
 <!--
   Builds a list of fields that are used directly for whens
 -->
-<xsl:template name="build-qwhen-list">
+<template name="build-qwhen-list">
   <!-- ignore comma requirements -->
-  <xsl:text>'':false</xsl:text>
+  <text>'':false</text>
 
-  <xsl:for-each select="//lv:*[ starts-with( @when, 'q:' ) ]">
-    <xsl:for-each select="tokenize( @when, ' ' )">
-      <xsl:text>,'</xsl:text>
-      <xsl:value-of select="substring-after( ., 'q:' )"/>
-      <xsl:text>':true</xsl:text>
-    </xsl:for-each>
-  </xsl:for-each>
+  <for-each select="//lv:*[ starts-with( @when, 'q:' ) ]">
+    <for-each select="tokenize( @when, ' ' )">
+      <text>,'</text>
+      <value-of select="substring-after( ., 'q:' )"/>
+      <text>':true</text>
+    </for-each>
+  </for-each>
 
   <!-- TODO: clean this up -->
-  <xsl:for-each select="//lv:*[ starts-with( @when, '!q:' ) ]">
-    <xsl:for-each select="tokenize( @when, ' ' )">
-      <xsl:text>,'</xsl:text>
-      <xsl:value-of select="substring-after( ., '!q:' )"/>
-      <xsl:text>':false</xsl:text>
-    </xsl:for-each>
-  </xsl:for-each>
-</xsl:template>
+  <for-each select="//lv:*[ starts-with( @when, '!q:' ) ]">
+    <for-each select="tokenize( @when, ' ' )">
+      <text>,'</text>
+      <value-of select="substring-after( ., '!q:' )"/>
+      <text>':false</text>
+    </for-each>
+  </for-each>
+</template>
 
 
 <!-- kickback clear -->
-<xsl:template name="build-kbclear">
-  <xsl:for-each select="//lv:question[ @kickback='clear' ]">
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+<template name="build-kbclear">
+  <for-each select="//lv:question[ @kickback='clear' ]">
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-      <xsl:value-of select="@id" />
-    <xsl:text>':true</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>'</text>
+      <value-of select="@id" />
+    <text>':true</text>
+  </for-each>
+</template>
 
 
-<xsl:template name="build-secure-fields">
-  <xsl:for-each select="//lv:question[@secure=true()]">
+<template name="build-secure-fields">
+  <for-each select="//lv:question[@secure=true()]">
     <!-- add delimiter -->
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-    <xsl:value-of select="@id" />
-    <xsl:text>'</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>'</text>
+    <value-of select="@id" />
+    <text>'</text>
+  </for-each>
+</template>
 
 
-<xsl:template name="build-discard">
-  <xsl:for-each select="/lv:program/lv:step">
+<template name="build-discard">
+  <for-each select="/lv:program/lv:step">
     <!-- unconditional delimiter because there is no step 0 -->
-    <xsl:text>,</xsl:text>
+    <text>,</text>
 
     <!-- default true -->
-    <xsl:value-of select="
+    <value-of select="
         if ( @allowDiscard='false' ) then
           'false'
         else
           'true'
       " />
-  </xsl:for-each>
-</xsl:template>
+  </for-each>
+</template>
 
 
 <!-- Any step that triggers the "rate" event is considered to be a rating step
      -->
-<xsl:template name="build-rate-steps">
-  <xsl:for-each select="/lv:program/lv:step">
+<template name="build-rate-steps">
+  <for-each select="/lv:program/lv:step">
     <!-- unconditional delimiter because there is no step 0 -->
-    <xsl:text>,</xsl:text>
+    <text>,</text>
 
     <!-- default true -->
-    <xsl:value-of select="
+    <value-of select="
         if ( lv:trigger/@event='rate' ) then
           'true'
         else
           'false'
       " />
-  </xsl:for-each>
-</xsl:template>
+  </for-each>
+</template>
 
 
-<xsl:template name="build-sidebar-overview">
-  <xsl:for-each select="lv:sidebar/lv:overview/lv:item[@ref]">
-    <xsl:if test="position() > 1">
-      <xsl:text>,</xsl:text>
-    </xsl:if>
+<template name="build-sidebar-overview">
+  <for-each select="lv:sidebar/lv:overview/lv:item[@ref]">
+    <if test="position() > 1">
+      <text>,</text>
+    </if>
 
-    <xsl:text>'</xsl:text>
-    <xsl:value-of select="replace( @title, &quot;'&quot;, &quot;\\'&quot; )" />
-    <xsl:text>':{ref:'</xsl:text>
-    <xsl:value-of select="@ref" />
-    <xsl:text>',internal:</xsl:text>
-    <xsl:value-of select="if ( @internal = 'true' ) then 'true' else 'false'" />
-    <xsl:text>}</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+    <text>'</text>
+    <value-of select="replace( @title, &quot;'&quot;, &quot;\\'&quot; )" />
+    <text>':{ref:'</text>
+    <value-of select="@ref" />
+    <text>',internal:</text>
+    <value-of select="if ( @internal = 'true' ) then 'true' else 'false'" />
+    <text>}</text>
+  </for-each>
+</template>
 
 
-<xsl:template name="build-init">
-  <xsl:text>function(bucket,store_only){</xsl:text>
+<template name="build-init">
+  <text>function(bucket,store_only){</text>
 
-  <xsl:text>if(store_only===true){</xsl:text>
-    <xsl:apply-templates select="//lv:calc[ @store = true() ]" mode="gen-calc">
-      <xsl:with-param name="deps" select="true()" />
+  <text>if(store_only===true){</text>
+    <apply-templates select="//lv:calc[ @store = true() ]" mode="gen-calc">
+      <with-param name="deps" select="true()" />
       <!-- diff data isn't applicable in this context -->
-      <xsl:with-param name="with-diff" select="false()" />
-      <xsl:with-param name="method" select="'setCommittedValues'" />
-    </xsl:apply-templates>
-  <xsl:text>return;}</xsl:text>
+      <with-param name="with-diff" select="false()" />
+      <with-param name="method" select="'setCommittedValues'" />
+    </apply-templates>
+  <text>return;}</text>
 
   <!-- run all calculated values on init -->
-  <xsl:apply-templates select="//lv:calc" mode="gen-calc">
+  <apply-templates select="//lv:calc" mode="gen-calc">
     <!-- diff data isn't applicable in this context -->
-    <xsl:with-param name="with-diff" select="false()" />
-    <xsl:with-param name="method" select="'setCommittedValues'" />
-  </xsl:apply-templates>
+    <with-param name="with-diff" select="false()" />
+    <with-param name="method" select="'setCommittedValues'" />
+  </apply-templates>
 
-  <xsl:text>}</xsl:text>
-</xsl:template>
+  <text>}</text>
+</template>
 
 
-<xsl:template name="get-fist-step-id">
-  <xsl:variable name="manages" select="//lv:step[ @type='manage' ]" />
-  <xsl:variable name="manage-last" select="$manages[ count( $manages ) ]" />
+<template name="get-fist-step-id">
+  <variable name="manages" select="//lv:step[ @type='manage' ]" />
+  <variable name="manage-last" select="$manages[ count( $manages ) ]" />
 
-  <xsl:choose>
+  <choose>
     <!-- if we have management steps, calculate the first step id after all of them -->
-    <xsl:when test="$manages">
-      <xsl:value-of select="count( $manage-last/preceding-sibling::lv:step ) + 2" />
-    </xsl:when>
+    <when test="$manages">
+      <value-of select="count( $manage-last/preceding-sibling::lv:step ) + 2" />
+    </when>
 
-    <xsl:otherwise>
+    <otherwise>
       <!-- 1's a pretty good place to start! -->
-      <xsl:text>1</xsl:text>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
+      <text>1</text>
+    </otherwise>
+  </choose>
+</template>
 
 
-<xsl:template name="compiler:gen-sorted-groups">
-  <xsl:for-each select="//lv:step">
+<template name="compiler:gen-sorted-groups">
+  <for-each select="//lv:step">
     <!-- step 0 doesn't exist, so always add -->
-    <xsl:text>,</xsl:text>
+    <text>,</text>
 
-    <xsl:text>{</xsl:text>
-      <xsl:for-each select=".//preproc:sorted-groups">
-        <xsl:if test="position() > 1">
-          <xsl:text>,</xsl:text>
-        </xsl:if>
+    <text>{</text>
+      <for-each select=".//preproc:sorted-groups">
+        <if test="position() > 1">
+          <text>,</text>
+        </if>
 
-        <xsl:text>'</xsl:text>
-          <xsl:value-of select="@id" />
-        <xsl:text>':[</xsl:text>
+        <text>'</text>
+          <value-of select="@id" />
+        <text>':[</text>
 
-          <xsl:for-each select="preproc:group">
-            <xsl:if test="position() > 1">
-              <xsl:text>,</xsl:text>
-            </xsl:if>
+          <for-each select="preproc:group">
+            <if test="position() > 1">
+              <text>,</text>
+            </if>
 
             <!-- [ group id, [ sort fields ] ] -->
-            <xsl:text>[</xsl:text>
-              <xsl:text>'</xsl:text>
-                <xsl:value-of select="@ref" />
-              <xsl:text>',[</xsl:text>
+            <text>[</text>
+              <text>'</text>
+                <value-of select="@ref" />
+              <text>',[</text>
 
-                <xsl:for-each select="preproc:sort">
-                  <xsl:if test="position() > 1">
-                    <xsl:text>,</xsl:text>
-                  </xsl:if>
+                <for-each select="preproc:sort">
+                  <if test="position() > 1">
+                    <text>,</text>
+                  </if>
 
-                  <xsl:text>'</xsl:text>
-                    <xsl:value-of select="@by" />
-                  <xsl:text>'</xsl:text>
-                </xsl:for-each>
+                  <text>'</text>
+                    <value-of select="@by" />
+                  <text>'</text>
+                </for-each>
 
-              <xsl:text>]</xsl:text>
-            <xsl:text>]</xsl:text>
-          </xsl:for-each>
+              <text>]</text>
+            <text>]</text>
+          </for-each>
 
-        <xsl:text>]</xsl:text>
-      </xsl:for-each>
-    <xsl:text>}</xsl:text>
-  </xsl:for-each>
-</xsl:template>
+        <text>]</text>
+      </for-each>
+    <text>}</text>
+  </for-each>
+</template>
 
-<xsl:template match="lv:static" mode="generate-static">
-  <xsl:apply-templates mode="generate-static" />
-</xsl:template>
+<template match="lv:static" mode="generate-static">
+  <apply-templates mode="generate-static" />
+</template>
 <!-- simply coopy static nodes -->
-<xsl:template match="*" mode="generate-static">
-  <xsl:value-of select="concat('&lt;',name())"/>
-    <xsl:apply-templates select="@*" mode="generate-static" />
-    <xsl:text>&gt;</xsl:text>
-    <xsl:apply-templates mode="generate-static" />
-  <xsl:value-of select="concat('&lt;/',name(),'&gt;')"/>
-</xsl:template>
+<template match="*" mode="generate-static">
+  <value-of select="concat('&lt;',name())"/>
+    <apply-templates select="@*" mode="generate-static" />
+    <text>&gt;</text>
+    <apply-templates mode="generate-static" />
+  <value-of select="concat('&lt;/',name(),'&gt;')"/>
+</template>
 
-<xsl:template match="@*" mode="generate-static">
-  <xsl:value-of select="concat(' ',name(),'=&quot;')"/>
-    <xsl:value-of select="." />
-  <xsl:text>"</xsl:text>
-</xsl:template>
+<template match="@*" mode="generate-static">
+  <value-of select="concat(' ',name(),'=&quot;')"/>
+    <value-of select="." />
+  <text>"</text>
+</template>
 
-<xsl:template match="text()" mode="generate-static">
-  <xsl:value-of select="translate(.,'&#xA;',' ')"/>
-</xsl:template>
+<template match="text()" mode="generate-static">
+  <value-of select="translate(.,'&#xA;',' ')"/>
+</template>
 
-</xsl:stylesheet>
+</stylesheet>
 
