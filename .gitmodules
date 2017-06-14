@@ -1,0 +1,3 @@
+[submodule "build-aux/literate-xsl"]
+	path = build-aux/literate-xsl
+	url = https://github.com/lovullo/literate-xsl
