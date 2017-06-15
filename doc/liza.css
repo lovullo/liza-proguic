@@ -49,6 +49,7 @@ pre.example, pre.verbatim
   background-color: #fdf6e3;
   padding: 0.5em;
   font-size: 0.9em;
+  overflow-x: auto;
 }
 a { color: #268bd2; /* blue */ }
 a:visited { color: #d33682; /* magenta */ }
