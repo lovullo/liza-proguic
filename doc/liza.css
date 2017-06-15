@@ -43,7 +43,7 @@ pre.example, .header, .float-caption, hr
   color: #657b83;
   border-color: #657b83;
 }
-pre.example
+pre.example, pre.verbatim
 {
   /* base3 ~ background color in light solarized theme */
   background-color: #fdf6e3;
