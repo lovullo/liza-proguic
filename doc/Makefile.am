@@ -26,7 +26,7 @@ stylesheets := $(shell find "$(path_src)" \
 stexi       := $(stylesheets:.xsl=.texi)
 
 info_TEXINFOS  = liza-proguic.texi
-liza_proguic_TEXINFOS = license.texi $(stexi)
+liza_proguic_TEXINFOS = license.texi $(stexi) util.texi
 
 MAKEINFOHTML = $(MAKEINFO) --html --css-include liza.css
 

@@ -72,6 +72,7 @@ Free Documentation License".
 @end ifnottex
 
 @menu
+* Utilities::              Utility functions and templates
 * License::                Document License
 * Concept Index::
 @ifset DEVNOTES
@@ -83,6 +84,7 @@ Free Documentation License".
 @insertcopying
 @end ifnottex
 
+@include util.texi
 @include license.texi
 
 @node Concept Index
