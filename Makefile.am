@@ -18,5 +18,11 @@
 
 SUBDIRS = doc
 
+path_test = test
+
 .DELETE_ON_ERROR:
+
+test: check
+check:
+	$(path_test)/runner
 

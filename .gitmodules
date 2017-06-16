@@ -1,3 +1,6 @@
 [submodule "build-aux/literate-xsl"]
 	path = build-aux/literate-xsl
 	url = https://github.com/lovullo/literate-xsl
+[submodule "build-aux/xspec"]
+	path = build-aux/xspec
+	url = https://github.com/lovullo/xspec
