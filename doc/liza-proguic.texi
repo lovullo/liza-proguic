@@ -72,6 +72,9 @@ Free Documentation License".
 @end ifnottex
 
 @menu
+* Program XML::            Program definition (source code)
+* Compilation::            Compiler phases and architecture
+* Metadata::               Additional information outside of the bucket
 * Utilities::              Utility functions and templates
 * License::                Document License
 * Concept Index::
@@ -84,6 +87,14 @@ Free Documentation License".
 @insertcopying
 @end ifnottex
 
+
+@node Program XML
+@chapter Program XML
+@helpwanted{}
+
+
+@include compilation.texi
+@include ../src/meta.texi
 @include util.texi
 @include license.texi
 

@@ -22,8 +22,12 @@
 -->
 <stylesheet version="2.0"
             xmlns="http://www.w3.org/1999/XSL/Transform"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:luic="http://www.lovullo.com/liza/program/compiler"
+            xmlns:struct="http://www.lovullo.com/liza/proguic/util/struct"
             xmlns:qtype="http://www.lovullo.com/program/ui/meta/qtypes"
             xmlns:lv="http://www.lovullo.com">
+
 
 <output method="text"
         indent="yes"
@@ -31,6 +35,7 @@
         />
 
 <include href="meta/qtypes.xsl" />
+<include href="meta.xsl" />
 
 
 <template name="build-meta">
@@ -50,8 +55,12 @@
   <apply-templates select="//lv:answer|//lv:display" mode="meta-aref" />
 
   <text>},groups:{</text>
-    <apply-templates select="//lv:group[@style]" mode="meta" />
-  <text>}}</text>
+  <apply-templates select="//lv:group[@style]" mode="meta" />
+
+  <text>},fields:</text>
+    <!-- TODO: this is glue code; move it to a proper place -->
+    <sequence select="luic:serialize-meta( /lv:program/lv:meta )" />
+  <text>}</text>
 </template>
 
 
@@ -106,6 +115,24 @@
   <text>,min:</text>
   <value-of select="if ( @minRows ) then number( @minRows ) else '0'" />
   <text>}</text>
+</template>
+
+
+<!-- TODO: this is glue code; move it to a proper place -->
+<function name="luic:serialize-meta" as="xs:string">
+  <param name="elements" as="element()*" />
+
+  <variable name="result" as="element( struct:dict )">
+    <apply-templates select="$elements" mode="luic:serialize" />
+  </variable>
+
+  <sequence select="struct:to-json( $result )" />
+</function>
+
+
+<template mode="luic:serialize" priority="1"
+          match="node()">
+  <!-- ignore -->
 </template>
 
 </stylesheet>
