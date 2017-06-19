@@ -62,5 +62,16 @@ AC_SUBST([SET_SRCURI], [$set_srcuri])
 
 AC_CONFIG_FILES([Makefile doc/Makefile doc/config.texi src/init.xsl VERSION])
 
+: ${HOXSL=hoxsl}
+AC_ARG_VAR([HOXSL], [Path to hoxsl])
+
+AC_MSG_CHECKING([hoxsl path HOXSL=$HOXSL])
+AS_IF(test ! -d "$HOXSL",
+  AC_MSG_ERROR([hoxsl path '$HOXSL' does not exist!]))
+AC_MSG_RESULT(found)
+
+AC_MSG_NOTICE([creating symlink ./hoxsl])
+ln -sf "$HOXSL" hoxsl
+
 AC_OUTPUT
 

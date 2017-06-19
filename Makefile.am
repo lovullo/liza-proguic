@@ -18,11 +18,26 @@
 
 SUBDIRS = doc
 
+path_src = src
 path_test = test
+#
+# all source files will be run through hoxsl; see `applies' target
+apply_src  := $(shell find "$(path_src)" "$(path_test)" \
+                        -name '*.xsl' )
+apply_dest := $(apply_src:%.xsl=%.xsl.apply)
 
 .DELETE_ON_ERROR:
 
+
 test: check
-check:
+check: | applies
 	$(path_test)/runner
+
+# the "applies" are hoxsl-generated stylesheets containing definitions to
+# permit partial function application
+applies: $(apply_dest)
+%.apply: %
+	$(JAVA) -jar "$(SAXON_CP)" \
+	    -xsl:"$(HOXSL)/src/transform/apply-gen.xsl" \
+	    "$<" > "$@"
 
