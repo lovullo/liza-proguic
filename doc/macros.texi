@@ -177,3 +177,11 @@ This system has maintenance concerns.
 @macro progxml
 Program@tie{}XML
 @end macro
+
+@macro progxmlref
+Program@tie{}XML (@pxref{Program XML})
+@end macro
+
+@macro coderef{refname}
+@ref{\refname\,,@code{\refname\}}
+@end macro
