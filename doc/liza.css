@@ -59,6 +59,9 @@ a:visited { color: #d33682; /* magenta */ }
 {
     margin-block-start: 2em;
     margin-block-end: 2em;
+    border-width: 1px 0px;
+    border-color: black;
+    border-style: solid;
 }
 
 /* Center floating tables and images */
