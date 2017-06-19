@@ -75,7 +75,7 @@ Liza Program@tie{}UI Compiler
 @macro helpwanted{}
 @cindex TODO, Missing Docs
 @dnindex Missing Docs
-@notice{There's nothing here yet.  Maybe you can help?}
+@notice{The information here is lacking.  Maybe you can help?}
 @end macro
 
 
