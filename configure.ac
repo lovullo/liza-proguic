@@ -71,7 +71,7 @@ AS_IF(test ! -d "$HOXSL",
 AC_MSG_RESULT(found)
 
 AC_MSG_NOTICE([creating symlink ./hoxsl])
-ln -sf "$HOXSL" hoxsl
+test -e hoxsl || ln -sf "$HOXSL" hoxsl
 
 AC_OUTPUT
 
