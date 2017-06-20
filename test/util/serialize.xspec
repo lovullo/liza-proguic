@@ -1,0 +1,374 @@
+<?xml version="1.0"?>
+<!--
+  Tests serialization
+
+  Copyright (C) 2017 LoVullo Associates, Inc.
+
+    This file is part of the Liza Program UI Compiler.
+
+    liza-proguic is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see
+    <http://www.gnu.org/licenses/>.
+-->
+<description xmlns="http://www.jenitennison.com/xslt/xspec"
+             xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+             xmlns:x="http://www.jenitennison.com/xslt/xspec"
+             xmlns:struct="http://www.lovullo.com/liza/proguic/util/struct"
+             xmlns:foo="http://www.lovullo.com/_junk"
+             stylesheet="serialize.xsl">
+
+  <variable name="foo:element" as="element( foo:element )">
+    <foo:element foo="a" bar="b" />
+  </variable>
+
+  <variable name="foo:multi" as="element( foo:element )+">
+    <foo:element depth="1.0">
+      <foo:child depth="2">
+        <foo:grandchild depth="3" />
+      </foo:child>
+    </foo:element>
+    <foo:element depth="1.1" />
+  </variable>
+
+
+  <scenario label="struct:item">
+    <scenario label="given a primitive">
+      <call function="struct:item">
+        <param name="value"
+               select="'a'" />
+      </call>
+
+      <expect label="produces text of primitive">
+        <struct:item>a</struct:item>
+      </expect>
+    </scenario>
+
+
+    <scenario label="given a structure">
+      <call function="struct:item">
+        <param name="value"
+               select="struct:array()" />
+      </call>
+
+      <expect label="produces nested structure">
+        <struct:item>
+          <struct:array />
+        </struct:item>
+      </expect>
+    </scenario>
+
+
+    <scenario label="given a key">
+      <call function="struct:item">
+        <param name="value"
+               select="'a'" />
+        <param name="key"
+               select="'foo'" />
+      </call>
+
+      <expect label="produces a keyed item">
+        <struct:item key="foo">a</struct:item>
+      </expect>
+    </scenario>
+  </scenario>
+
+
+  <scenario label="struct:array">
+    <scenario label="with no arguments">
+      <call function="struct:array" />
+
+      <expect label="produces empty array">
+        <struct:array />
+      </expect>
+    </scenario>
+
+
+    <scenario label="with no elements">
+      <call function="struct:array">
+        <param name="values"
+               select="()" />
+      </call>
+
+      <expect label="produces empty array">
+        <struct:array />
+      </expect>
+    </scenario>
+
+
+    <scenario label="with N items">
+      <call function="struct:array">
+        <param name="values"
+               select="( struct:item( 'a' ),
+                         struct:item( 'b' ),
+                         struct:item( 3 ) )" />
+      </call>
+
+      <expect label="produces array with N elements">
+        <struct:array>
+          <struct:item>a</struct:item>
+          <struct:item>b</struct:item>
+          <struct:item>3</struct:item>
+        </struct:array>
+      </expect>
+    </scenario>
+  </scenario>
+
+
+  <scenario label="struct:dict">
+    <scenario label="with no arguments">
+      <call function="struct:dict" />
+
+      <expect label="produces an empty dictionary">
+        <struct:dict />
+      </expect>
+    </scenario>
+
+
+    <scenario label="with no items">
+      <call function="struct:dict">
+        <param name="values"
+               select="()" />
+      </call>
+
+      <expect label="produces an empty dictionary">
+        <struct:dict />
+      </expect>
+    </scenario>
+
+
+    <scenario label="with items">
+      <call function="struct:dict">
+        <param name="values"
+               select="struct:item( 'a', 'key1' ),
+                       struct:item( 'b', 'key2' )" />
+      </call>
+
+      <expect label="produces dictionary with items">
+        <struct:dict>
+          <struct:item key="key1">a</struct:item>
+          <struct:item key="key2">b</struct:item>
+        </struct:dict>
+      </expect>
+    </scenario>
+  </scenario>
+
+
+  <scenario label="struct:item-from-attrs">
+    <scenario label="with no attributes">
+      <call function="struct:items-from-attrs">
+        <param name="attrs"
+               select="()" />
+      </call>
+
+      <expect label="produces no items"
+              select="()" />
+    </scenario>
+
+
+    <scenario label="with attributes">
+      <call function="struct:items-from-attrs">
+        <param name="attrs"
+               select="$foo:element/@*" />
+      </call>
+
+      <expect label="produces items for each attribute">
+        <struct:item key="foo">a</struct:item>
+        <struct:item key="bar">b</struct:item>
+      </expect>
+    </scenario>
+  </scenario>
+
+
+  <scenario label="struct:dict-from-attrs">
+    <scenario label="with element with no attributes">
+      <call function="struct:dict-from-attrs">
+        <param name="element">
+          <foo:bar />
+        </param>
+      </call>
+
+      <expect label="produces empty dictionary">
+        <struct:dict />
+      </expect>
+    </scenario>
+
+
+    <scenario label="with element with attributes">
+      <call function="struct:dict-from-attrs">
+        <param name="element">
+          <foo:root a="1" b="2" />
+        </param>
+      </call>
+
+      <expect label="produces dictionary with key/value for each attr">
+        <struct:dict>
+          <struct:item key="a">1</struct:item>
+          <struct:item key="b">2</struct:item>
+        </struct:dict>
+      </expect>
+    </scenario>
+  </scenario>
+
+
+  <scenario label="struct:dict-from-keyed-elements">
+    <scenario label="with no elements">
+      <call function="struct:dict-from-keyed-elements">
+        <param name="key"
+               select="'key'" />
+        <param name="elements"
+               select="()" />
+      </call>
+
+      <expect label="produces empty dictionary">
+        <struct:dict />
+      </expect>
+    </scenario>
+
+
+    <scenario label="with elements and key">
+      <call function="struct:dict-from-keyed-elements">
+        <param name="key"
+               select="'key'" />
+        <param name="elements">
+          <foo:first key="a" foo="bar" n="1" />
+          <foo:second key="b" foo="baz" n="2" />
+        </param>
+      </call>
+
+      <expect label="produces dictionary of dictionaries">
+        <struct:dict>
+          <struct:item key="a">
+            <struct:dict>
+              <struct:item key="foo">bar</struct:item>
+              <struct:item key="n">1</struct:item>
+            </struct:dict>
+          </struct:item>
+          <struct:item key="b">
+            <struct:dict>
+              <struct:item key="foo">baz</struct:item>
+              <struct:item key="n">2</struct:item>
+            </struct:dict>
+          </struct:item>
+        </struct:dict>
+      </expect>
+    </scenario>
+
+
+    <scenario label="given a recursing function">
+      <call function="struct:dict-from-keyed-elements">
+        <param name="key"
+               select="'depth'" />
+        <param name="elements"
+               select="$foo:multi" />
+        <param name="recf"
+               select="foo:recf()" />
+      </call>
+
+      <expect label="applies function to elements"
+              test="deep-equal(
+                      $x:result/struct:item[ @key='1.0' ]
+                        /struct:dict/struct:item[ @key='__rec' ]
+                        /foo:element,
+                      $foo:multi[1] )
+                    and deep-equal(
+                      $x:result/struct:item[ @key='1.1' ]
+                        /struct:dict/struct:item[ @key='__rec' ]
+                        /foo:element,
+                      $foo:multi[2] )"/>
+    </scenario>
+  </scenario>
+
+
+  <!--
+    JSON Serialization
+  -->
+
+  <scenario label="struct:to-json">
+    <scenario label="given an array">
+      <call function="struct:to-json">
+        <param name="struct">
+          <struct:array>
+            <!-- empty array -->
+            <struct:item>
+              <struct:array />
+            </struct:item>
+            <!-- primitive -->
+            <struct:item>a</struct:item>
+            <struct:item>
+              <struct:array>
+                <struct:item>b</struct:item>
+              </struct:array>
+            </struct:item>
+          </struct:array>
+        </param>
+      </call>
+
+      <expect label="produces an array"
+              select="'[[],&quot;a&quot;,[&quot;b&quot;]]'" />
+    </scenario>
+
+    <scenario label="given a dictionary">
+      <call function="struct:to-json">
+        <param name="struct">
+          <struct:dict>
+            <struct:item key="first">
+              <struct:item>a</struct:item>
+            </struct:item>
+
+            <struct:item key="second">
+              <struct:dict>
+                <struct:item key="array">
+                  <struct:array>
+                    <struct:item>a1</struct:item>
+                    <struct:item>a2</struct:item>
+                  </struct:array>
+                </struct:item>
+              </struct:dict>
+            </struct:item>
+          </struct:dict>
+        </param>
+      </call>
+
+      <expect label="produces an object"
+              select="concat(
+                        '{',
+                          '&quot;first&quot;:&quot;a&quot;,',
+                          '&quot;second&quot;:{',
+                            '&quot;array&quot;:[',
+                              '&quot;a1&quot;,&quot;a2&quot;',
+                            ']',
+                          '}',
+                        '}' )" />
+    </scenario>
+
+
+    <scenario label="given quoted keys and values">
+      <call function="struct:to-json">
+        <param name="struct">
+          <struct:dict>
+            <struct:item key="quo&quot;te">
+              <struct:item>"a"</struct:item>
+            </struct:item>
+          </struct:dict>
+        </param>
+      </call>
+
+      <expect label="produces escaped JSON"
+              select="concat(
+                        '{',
+                          '&quot;quo\&quot;te&quot;:',
+                          '&quot;\&quot;a\&quot;&quot;',
+                        '}' )" />
+    </scenario>
+  </scenario>
+</description>
