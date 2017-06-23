@@ -68,6 +68,18 @@
     </scenario>
 
 
+    <scenario label="given an attribute">
+      <call function="struct:item">
+        <param name="value"
+               select="$foo:element/@foo" />
+      </call>
+
+      <expect label="produces a string">
+        <struct:item>a</struct:item>
+      </expect>
+    </scenario>
+
+
     <scenario label="given a key">
       <call function="struct:item">
         <param name="value"
@@ -77,6 +89,20 @@
       </call>
 
       <expect label="produces a keyed item">
+        <struct:item key="foo">a</struct:item>
+      </expect>
+    </scenario>
+
+
+    <scenario label="given a key with an attribute">
+      <call function="struct:item">
+        <param name="value"
+               select="$foo:element/@foo" />
+        <param name="key"
+               select="'foo'" />
+      </call>
+
+      <expect label="produces a keyed string">
         <struct:item key="foo">a</struct:item>
       </expect>
     </scenario>

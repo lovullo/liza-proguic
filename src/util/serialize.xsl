@@ -134,13 +134,18 @@ An @dfn{item} can be either @dfn{keyed} or @dfn{unkeyed}:
   A key value may be a primitive value or another structure.
   Keyed items must be children of a@tie{}dictionary
     (@pxref{struct:dict#1,,@code{struct:dict}}).
+
+  Attribute values are converted into strings.
 -->
 <function name="struct:item" as="element( struct:item )">
   <param name="value" />
   <param name="id" as="xs:string" />
 
   <struct:item key="{$id}">
-    <sequence select="$value" />
+    <sequence select="if ( $value instance of attribute() ) then
+                          string( $value )
+                        else
+                          $value" />
   </struct:item>
 </function>
 
@@ -151,14 +156,30 @@ An @dfn{item} can be either @dfn{keyed} or @dfn{unkeyed}:
   A key value may be a primitive value or another structure.
   Keyless items must be children of a@tie{}array
     (@pxref{struct:array#1,,@code{struct:array}}).
+
+  Attribute values are converted into strings.
 -->
 <function name="struct:item" as="element( struct:item )">
   <param name="value" />
 
   <struct:item>
-    <sequence select="$value" />
+    <sequence select="if ( $value instance of attribute() ) then
+                          string( $value )
+                        else
+                          $value" />
   </struct:item>
 </function>
+
+<!--
+Since deriving item values from attributes is common,
+  they will automatically be convered into strings.@footnote{
+    Really, it makes no sense to permit attributes,
+      since that will result in the attribute being assigned to the
+      @xmlnode{struct:item} itself,
+      which does not make any sense
+        (and could corrupt internal state depending on what attribute
+          was set).}
+-->
 
 
 <!--
@@ -180,7 +201,7 @@ Two functions provide this convenience:
   <param name="attrs" as="attribute()*" />
 
   <sequence select="for $attr in $attrs
-                      return struct:item( string( $attr ),
+                      return struct:item( $attr,
                                           $attr/local-name() )" />
 </function>
 
@@ -346,8 +367,8 @@ Extracting key/value pairs from element attributes is also a common
 
   <sequence select="for $element in $elements
                       return struct:item(
-                        string( $element/@*[ local-name() = $value ] ),
-                        string( $element/@*[ local-name() = $key ] ) )" />
+                        $element/@*[ local-name() = $value ],
+                        $element/@*[ local-name() = $key ] )" />
 </function>
 
 
