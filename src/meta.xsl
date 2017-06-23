@@ -25,7 +25,7 @@
             xmlns:xs="http://www.w3.org/2001/XMLSchema"
             xmlns:lv="http://www.lovullo.com"
             xmlns:luic="http://www.lovullo.com/liza/program/compiler"
-            xmlns:struct="http://www.lovullo.com/liza/proguic/util/struct"
+            xmlns:st="http://www.lovullo.com/liza/proguic/util/struct"
             xmlns:preproc="http://www.lovullo.com/program/preprocessor">
 
 
@@ -81,9 +81,9 @@ Document metadata are only serialized for later use
 -->
 <template mode="luic:serialize" priority="5"
           match="lv:meta">
-  <sequence select="struct:dict-from-keyed-elements( 'id',
-                                                     lv:field,
-                                                     luic:field-meta() )" />
+  <sequence select="st:dict-from-keyed-elements( 'id',
+                                                 lv:field,
+                                                 luic:field-meta() )" />
 </template>
 
 
@@ -101,7 +101,7 @@ Document metadata are only serialized for later use
     so we need only return an item for it to be merged with the
     containing dictionary.
 -->
-<function name="luic:field-meta" as="element( struct:item )">
+<function name="luic:field-meta" as="element( st:item )">
   <param name="field" as="element( lv:field )" />
 
   <variable name="data" as="element( lv:data )?"
@@ -110,23 +110,23 @@ Document metadata are only serialized for later use
             select="$data/lv:map" />
 
   <!-- only generate map from value node if dapi ref exists -->
-  <variable name="value-map" as="element( struct:item )?"
+  <variable name="value-map" as="element( st:item )?"
             select="if ( $data ) then
-                        struct:item( string( $field/@id ),
-                                     $data/lv:value/@from )
+                        st:item( string( $field/@id ),
+                                 $data/lv:value/@from )
                       else
                         ()" />
 
-  <variable name="map-dict" as="element( struct:dict )"
-            select="struct:dict(
+  <variable name="map-dict" as="element( st:dict )"
+            select="st:dict(
                       ( $value-map,
-                        struct:items-from-keyed-elements(
+                        st:items-from-keyed-elements(
                           'from', 'into', $maps ) ) )" />
 
-  <sequence select="struct:item(
-                      struct:dict(
-                        ( struct:item( string( $data/@source ), 'name' ),
-                          struct:item( $map-dict, 'map' ) ) ),
+  <sequence select="st:item(
+                      st:dict(
+                        ( st:item( string( $data/@source ), 'name' ),
+                          st:item( $map-dict, 'map' ) ) ),
                       'dapi' )" />
 </function>
 
