@@ -112,7 +112,7 @@ Document metadata are only serialized for later use
   <!-- only generate map from value node if dapi ref exists -->
   <variable name="value-map" as="element( st:item )?"
             select="if ( $data ) then
-                        st:item( string( $field/@id ),
+                        st:item( $field/@id,
                                  $data/lv:value/@from )
                       else
                         ()" />
@@ -125,7 +125,7 @@ Document metadata are only serialized for later use
 
   <sequence select="st:item(
                       st:dict(
-                        ( st:item( string( $data/@source ), 'name' ),
+                        ( st:item( $data/@source, 'name' ),
                           st:item( $map-dict, 'map' ) ) ),
                       'dapi' )" />
 </function>
