@@ -223,7 +223,7 @@ Another function allows allows using one of the attibutes as
   The function is applied within the context of the dictionary and
     should therefore return one or more @xmlnode{struct:item}s.
 
-  Beware: the given key @var{key} is compared only by @code{local-name}.
+  Beware: the given key @var{$key} is compared only by @code{local-name}.
 
   @emph{No check is performed to ensure they all keys are unique in
     the toplevel dictionary.}
@@ -324,6 +324,34 @@ An example usage of this function is provided in
 @end float
 
 
+Extracting key/value pairs from element attributes is also a common
+  operation:
+-->
+
+
+<!--
+  Generate keyed items for each element in @var{$elements} using one
+  attribute @var{$key}@tie{}as the key and another attribute
+  @var{$value}@tie{}as the value.
+
+  Beware: the given key @var{$key} is compared only by @code{local-name}.
+
+  The arguments are ordered such that this is useful as a partially
+  applied function for processing lists of elements with lambdas.
+-->
+<function name="struct:items-from-keyed-elements" as="element( struct:item )*">
+  <param name="key"      as="xs:string" />
+  <param name="value"    as="xs:string" />
+  <param name="elements" as="element()*" />
+
+  <sequence select="for $element in $elements
+                      return struct:item(
+                        string( $element/@*[ local-name() = $value ] ),
+                        string( $element/@*[ local-name() = $key ] ) )" />
+</function>
+
+
+<!--
 @menu
 * JSON Transformation:: Serializing to JSON.
 @end menu

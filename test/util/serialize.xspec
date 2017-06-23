@@ -286,6 +286,25 @@
                         /foo:element,
                       $foo:multi[2] )"/>
     </scenario>
+
+
+    <scenario label="struct:items-from-keyed-elements">
+      <call function="struct:items-from-keyed-elements">
+        <param name="key"
+               select="'key'" />
+        <param name="value"
+               select="'value'" />
+        <param name="elements" as="element()+">
+          <foo key="a" value="1" />
+          <foo key="b" value="2" />
+        </param>
+      </call>
+
+      <expect label="item is created for each element">
+        <struct:item key="a">1</struct:item>
+        <struct:item key="b">2</struct:item>
+      </expect>
+    </scenario>
   </scenario>
 
 
