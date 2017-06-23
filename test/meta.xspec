@@ -36,6 +36,8 @@
         <lv:field id="bar" desc="With Data API">
           <lv:data source="dapi-source">
             <lv:value from="foo" />
+            <lv:map from="in1" into="out1" />
+            <lv:map from="in2" into="out2" />
           </lv:data>
         </lv:field>
       </lv:meta>
@@ -46,13 +48,31 @@
         <struct:item key="foo">
           <struct:dict>
             <struct:item key="desc">First</struct:item>
-            <struct:item key="dapi" />
+            <struct:item key="dapi">
+              <struct:dict>
+                <struct:item key="name" />
+                <struct:item key="map">
+                  <struct:dict />
+                </struct:item>
+              </struct:dict>
+            </struct:item>
           </struct:dict>
         </struct:item>
         <struct:item key="bar">
           <struct:dict>
             <struct:item key="desc">With Data API</struct:item>
-            <struct:item key="dapi">dapi-source</struct:item>
+            <struct:item key="dapi">
+              <struct:dict>
+                <struct:item key="name">dapi-source</struct:item>
+                <struct:item key="map">
+                  <struct:dict>
+                    <struct:item key="foo">bar</struct:item>
+                    <struct:item key="in1">out1</struct:item>
+                    <struct:item key="in2">out2</struct:item>
+                  </struct:dict>
+                </struct:item>
+              </struct:dict>
+            </struct:item>
           </struct:dict>
         </struct:item>
       </struct:dict>

@@ -106,8 +106,28 @@ Document metadata are only serialized for later use
 
   <variable name="data" as="element( lv:data )?"
             select="$field/lv:data" />
+  <variable name="maps" as="element( lv:map )*"
+            select="$data/lv:map" />
 
-  <sequence select="struct:item( string( $data/@source ), 'dapi' )" />
+  <!-- only generate map from value node if dapi ref exists -->
+  <variable name="value-map" as="element( struct:item )?"
+            select="if ( $data ) then
+                        struct:item( string( $field/@id ),
+                                     $data/lv:value/@from )
+                      else
+                        ()" />
+
+  <variable name="map-dict" as="element( struct:dict )"
+            select="struct:dict(
+                      ( $value-map,
+                        struct:items-from-keyed-elements(
+                          'from', 'into', $maps ) ) )" />
+
+  <sequence select="struct:item(
+                      struct:dict(
+                        ( struct:item( string( $data/@source ), 'name' ),
+                          struct:item( $map-dict, 'map' ) ) ),
+                      'dapi' )" />
 </function>
 
 </stylesheet>
