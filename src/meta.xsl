@@ -40,7 +40,7 @@
 
 @devnotice{This system is rudimentary and subject to change.}
 
-@dfn{Document metadata} is metadata stored outside of the bucket that
+@dfn{Document metadata} are metadata stored outside of the bucket that
   describes certain aspects of the document.@footnote{
     Terminology note: ``document'' and ``quote'' are the same thing;
       the latter is transitioning to the former for generality.}
