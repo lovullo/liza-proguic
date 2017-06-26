@@ -373,6 +373,38 @@ Extracting key/value pairs from element attributes is also a common
 
 
 <!--
+When generating dictionary items in a loop from numerous elements,
+  it can be inconvenient keeping track of unique keys.
+If the goal is to create an array of items grouped by unique keys,
+  you're in luck:
+-->
+
+
+<!--
+  Group keyed items into arrays indexed by their respective keys.
+
+  Every unique key@tie{}@code{k} will result in an array@mdash{
+    }indexed by@tie{}@code{k}@mdash{
+    }containing each respective item.
+
+  @emph{Items without keys will not be retained!}
+-->
+<function name="struct:group-items-by-key" as="element( struct:item )*">
+  <param name="items" as="element( struct:item )*" />
+  <message select="$items" />
+
+  <for-each-group select="$items" group-by="@key">
+    <struct:item key="{current-grouping-key()}">
+      <struct:array>
+        <sequence select="for $item in current-group()
+                            return struct:item( $item/node() )" />
+      </struct:array>
+    </struct:item>
+  </for-each-group>
+</function>
+
+
+<!--
 @menu
 * JSON Transformation:: Serializing to JSON.
 @end menu

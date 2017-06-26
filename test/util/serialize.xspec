@@ -416,4 +416,29 @@
                         '}' )" />
     </scenario>
   </scenario>
+
+
+  <scenario label="struct:group-items-by-key">
+    <call function="struct:group-items-by-key">
+      <param name="items">
+        <struct:item key="multi">first</struct:item>
+        <struct:item key="one">and only</struct:item>
+        <struct:item key="multi">second</struct:item>
+      </param>
+    </call>
+
+    <expect label="produces arrays and merges keys">
+      <struct:item key="multi">
+        <struct:array>
+          <struct:item>first</struct:item>
+          <struct:item>second</struct:item>
+        </struct:array>
+      </struct:item>
+      <struct:item key="one">
+        <struct:array>
+          <struct:item>and only</struct:item>
+        </struct:array>
+      </struct:item>
+    </expect>
+  </scenario>
 </description>
