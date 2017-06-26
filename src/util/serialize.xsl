@@ -391,7 +391,6 @@ If the goal is to create an array of items grouped by unique keys,
 -->
 <function name="struct:group-items-by-key" as="element( struct:item )*">
   <param name="items" as="element( struct:item )*" />
-  <message select="$items" />
 
   <for-each-group select="$items" group-by="@key">
     <struct:item key="{current-grouping-key()}">

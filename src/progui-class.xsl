@@ -190,9 +190,11 @@
     <text>mapis:</text>
       <sequence select="st:to-json(
                           st:dict(
-                            ( for $field in lv:meta/lv:field[ lv:data ]
-                                return st:item( $field/lv:data/@source,
-                                                $field/@id ) ) ) )" />
+                            st:group-items-by-key(
+                              ( for $ref in lv:meta/lv:field/lv:data
+                                    /@*[ not( local-name() = 'source' ) ]
+                                  return st:item( $ref/ancestor::lv:field/@id,
+                                                  string( $ref ) ) ) ) ) )" />
       <text>,</text>
 
     <text>initQuote:</text><call-template name="build-init" /><text>,</text>
