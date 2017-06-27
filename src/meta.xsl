@@ -117,7 +117,12 @@ Document metadata are only serialized for later use
                       else
                         ()" />
 
-  <variable name="map-dict" as="element( st:dict )"
+  <variable name="mapsrc-dict" as="element( st:dict )"
+            select="st:dict(
+                      st:items-from-attrs(
+                        $data/@*[ not( local-name() = 'source' ) ] ) )" />
+
+  <variable name="mapdest-dict" as="element( st:dict )"
             select="st:dict(
                       ( $value-map,
                         st:items-from-keyed-elements(
@@ -126,7 +131,9 @@ Document metadata are only serialized for later use
   <sequence select="st:item(
                       st:dict(
                         ( st:item( $data/@source, 'name' ),
-                          st:item( $map-dict, 'map' ) ) ),
+                          st:item( $data/lv:value/@from, 'value' ),
+                          st:item( $mapsrc-dict, 'mapsrc' ),
+                          st:item( $mapdest-dict, 'mapdest' ) ) ),
                       'dapi' )" />
 </function>
 

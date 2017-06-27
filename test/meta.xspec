@@ -34,10 +34,10 @@
         <lv:field id="foo" desc="First" />
 
         <lv:field id="bar" desc="With Data API">
-          <lv:data source="dapi-source">
+          <lv:data source="dapi-source" in1="one" in2="two">
             <lv:value from="foo" />
-            <lv:map from="in1" into="out1" />
-            <lv:map from="in2" into="out2" />
+            <lv:map from="out1" into="dest1" />
+            <lv:map from="out2" into="dest2" />
           </lv:data>
         </lv:field>
       </lv:meta>
@@ -51,24 +51,36 @@
             <struct:item key="dapi">
               <struct:dict>
                 <struct:item key="name" />
-                <struct:item key="map">
+                <struct:item key="value" />
+                <struct:item key="mapsrc">
+                  <struct:dict />
+                </struct:item>
+                <struct:item key="mapdest">
                   <struct:dict />
                 </struct:item>
               </struct:dict>
             </struct:item>
           </struct:dict>
         </struct:item>
+
         <struct:item key="bar">
           <struct:dict>
             <struct:item key="desc">With Data API</struct:item>
             <struct:item key="dapi">
               <struct:dict>
                 <struct:item key="name">dapi-source</struct:item>
-                <struct:item key="map">
+                <struct:item key="value">foo</struct:item>
+                <struct:item key="mapsrc">
+                  <struct:dict>
+                    <struct:item key="in1">one</struct:item>
+                    <struct:item key="in2">two</struct:item>
+                  </struct:dict>
+                </struct:item>
+                <struct:item key="mapdest">
                   <struct:dict>
                     <struct:item key="foo">bar</struct:item>
-                    <struct:item key="in1">out1</struct:item>
-                    <struct:item key="in2">out2</struct:item>
+                    <struct:item key="out1">dest1</struct:item>
+                    <struct:item key="out2">dest2</struct:item>
                   </struct:dict>
                 </struct:item>
               </struct:dict>
