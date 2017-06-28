@@ -78,9 +78,9 @@
                 </struct:item>
                 <struct:item key="mapdest">
                   <struct:dict>
-                    <struct:item key="foo">bar</struct:item>
-                    <struct:item key="out1">dest1</struct:item>
-                    <struct:item key="out2">dest2</struct:item>
+                    <struct:item key="bar">foo</struct:item>
+                    <struct:item key="dest1">out1</struct:item>
+                    <struct:item key="dest2">out2</struct:item>
                   </struct:dict>
                 </struct:item>
               </struct:dict>
