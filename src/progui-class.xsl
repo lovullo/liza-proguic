@@ -25,6 +25,7 @@
             xmlns:lv="http://www.lovullo.com"
             xmlns:compiler="http://www.lovullo.com/program/compiler"
             xmlns:assert="http://www.lovullo.com/assert"
+            xmlns:st="http://www.lovullo.com/liza/proguic/util/struct"
             xmlns:preproc="http://www.lovullo.com/program/preprocessor">
 
 <output method="text"
@@ -186,8 +187,14 @@
     <text>apis:</text>
       <apply-templates select="." mode="compiler:compile-apis" />
       <text>,</text>
-    <text>qapis:</text>
-      <apply-templates select="." mode="compiler:compile-question-apis" />
+    <text>mapis:</text>
+      <sequence select="st:to-json(
+                          st:dict(
+                            st:group-items-by-key(
+                              ( for $ref in lv:meta/lv:field/lv:data
+                                    /@*[ not( local-name() = 'source' ) ]
+                                  return st:item( $ref/ancestor::lv:field/@id,
+                                                  string( $ref ) ) ) ) ) )" />
       <text>,</text>
 
     <text>initQuote:</text><call-template name="build-init" /><text>,</text>

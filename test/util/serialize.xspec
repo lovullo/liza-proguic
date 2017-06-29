@@ -68,6 +68,18 @@
     </scenario>
 
 
+    <scenario label="given an attribute">
+      <call function="struct:item">
+        <param name="value"
+               select="$foo:element/@foo" />
+      </call>
+
+      <expect label="produces a string">
+        <struct:item>a</struct:item>
+      </expect>
+    </scenario>
+
+
     <scenario label="given a key">
       <call function="struct:item">
         <param name="value"
@@ -77,6 +89,20 @@
       </call>
 
       <expect label="produces a keyed item">
+        <struct:item key="foo">a</struct:item>
+      </expect>
+    </scenario>
+
+
+    <scenario label="given a key with an attribute">
+      <call function="struct:item">
+        <param name="value"
+               select="$foo:element/@foo" />
+        <param name="key"
+               select="'foo'" />
+      </call>
+
+      <expect label="produces a keyed string">
         <struct:item key="foo">a</struct:item>
       </expect>
     </scenario>
@@ -286,6 +312,25 @@
                         /foo:element,
                       $foo:multi[2] )"/>
     </scenario>
+
+
+    <scenario label="struct:items-from-keyed-elements">
+      <call function="struct:items-from-keyed-elements">
+        <param name="key"
+               select="'key'" />
+        <param name="value"
+               select="'value'" />
+        <param name="elements" as="element()+">
+          <foo key="a" value="1" />
+          <foo key="b" value="2" />
+        </param>
+      </call>
+
+      <expect label="item is created for each element">
+        <struct:item key="a">1</struct:item>
+        <struct:item key="b">2</struct:item>
+      </expect>
+    </scenario>
   </scenario>
 
 
@@ -370,5 +415,30 @@
                           '&quot;\&quot;a\&quot;&quot;',
                         '}' )" />
     </scenario>
+  </scenario>
+
+
+  <scenario label="struct:group-items-by-key">
+    <call function="struct:group-items-by-key">
+      <param name="items">
+        <struct:item key="multi">first</struct:item>
+        <struct:item key="one">and only</struct:item>
+        <struct:item key="multi">second</struct:item>
+      </param>
+    </call>
+
+    <expect label="produces arrays and merges keys">
+      <struct:item key="multi">
+        <struct:array>
+          <struct:item>first</struct:item>
+          <struct:item>second</struct:item>
+        </struct:array>
+      </struct:item>
+      <struct:item key="one">
+        <struct:array>
+          <struct:item>and only</struct:item>
+        </struct:array>
+      </struct:item>
+    </expect>
   </scenario>
 </description>

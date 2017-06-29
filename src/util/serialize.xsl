@@ -134,13 +134,18 @@ An @dfn{item} can be either @dfn{keyed} or @dfn{unkeyed}:
   A key value may be a primitive value or another structure.
   Keyed items must be children of a@tie{}dictionary
     (@pxref{struct:dict#1,,@code{struct:dict}}).
+
+  Attribute values are converted into strings.
 -->
 <function name="struct:item" as="element( struct:item )">
   <param name="value" />
   <param name="id" as="xs:string" />
 
   <struct:item key="{$id}">
-    <sequence select="$value" />
+    <sequence select="if ( $value instance of attribute() ) then
+                          string( $value )
+                        else
+                          $value" />
   </struct:item>
 </function>
 
@@ -151,14 +156,30 @@ An @dfn{item} can be either @dfn{keyed} or @dfn{unkeyed}:
   A key value may be a primitive value or another structure.
   Keyless items must be children of a@tie{}array
     (@pxref{struct:array#1,,@code{struct:array}}).
+
+  Attribute values are converted into strings.
 -->
 <function name="struct:item" as="element( struct:item )">
   <param name="value" />
 
   <struct:item>
-    <sequence select="$value" />
+    <sequence select="if ( $value instance of attribute() ) then
+                          string( $value )
+                        else
+                          $value" />
   </struct:item>
 </function>
+
+<!--
+Since deriving item values from attributes is common,
+  they will automatically be convered into strings.@footnote{
+    Really, it makes no sense to permit attributes,
+      since that will result in the attribute being assigned to the
+      @xmlnode{struct:item} itself,
+      which does not make any sense
+        (and could corrupt internal state depending on what attribute
+          was set).}
+-->
 
 
 <!--
@@ -180,7 +201,7 @@ Two functions provide this convenience:
   <param name="attrs" as="attribute()*" />
 
   <sequence select="for $attr in $attrs
-                      return struct:item( string( $attr ),
+                      return struct:item( $attr,
                                           $attr/local-name() )" />
 </function>
 
@@ -223,7 +244,7 @@ Another function allows allows using one of the attibutes as
   The function is applied within the context of the dictionary and
     should therefore return one or more @xmlnode{struct:item}s.
 
-  Beware: the given key @var{key} is compared only by @code{local-name}.
+  Beware: the given key @var{$key} is compared only by @code{local-name}.
 
   @emph{No check is performed to ensure they all keys are unique in
     the toplevel dictionary.}
@@ -324,6 +345,65 @@ An example usage of this function is provided in
 @end float
 
 
+Extracting key/value pairs from element attributes is also a common
+  operation:
+-->
+
+
+<!--
+  Generate keyed items for each element in @var{$elements} using one
+  attribute @var{$key}@tie{}as the key and another attribute
+  @var{$value}@tie{}as the value.
+
+  Beware: the given key @var{$key} is compared only by @code{local-name}.
+
+  The arguments are ordered such that this is useful as a partially
+  applied function for processing lists of elements with lambdas.
+-->
+<function name="struct:items-from-keyed-elements" as="element( struct:item )*">
+  <param name="key"      as="xs:string" />
+  <param name="value"    as="xs:string" />
+  <param name="elements" as="element()*" />
+
+  <sequence select="for $element in $elements
+                      return struct:item(
+                        $element/@*[ local-name() = $value ],
+                        $element/@*[ local-name() = $key ] )" />
+</function>
+
+
+<!--
+When generating dictionary items in a loop from numerous elements,
+  it can be inconvenient keeping track of unique keys.
+If the goal is to create an array of items grouped by unique keys,
+  you're in luck:
+-->
+
+
+<!--
+  Group keyed items into arrays indexed by their respective keys.
+
+  Every unique key@tie{}@code{k} will result in an array@mdash{
+    }indexed by@tie{}@code{k}@mdash{
+    }containing each respective item.
+
+  @emph{Items without keys will not be retained!}
+-->
+<function name="struct:group-items-by-key" as="element( struct:item )*">
+  <param name="items" as="element( struct:item )*" />
+
+  <for-each-group select="$items" group-by="@key">
+    <struct:item key="{current-grouping-key()}">
+      <struct:array>
+        <sequence select="for $item in current-group()
+                            return struct:item( $item/node() )" />
+      </struct:array>
+    </struct:item>
+  </for-each-group>
+</function>
+
+
+<!--
 @menu
 * JSON Transformation:: Serializing to JSON.
 @end menu

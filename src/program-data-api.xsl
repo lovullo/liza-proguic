@@ -27,6 +27,7 @@
             xmlns="http://www.w3.org/1999/XSL/Transform"
             xmlns:xs="http://www.w3.org/2001/XMLSchema"
             xmlns:lv="http://www.lovullo.com"
+            xmlns:st="http://www.lovullo.com/liza/proguic/util/struct"
             xmlns:compiler="http://www.lovullo.com/program/compiler"
             xmlns:assert="http://www.lovullo.com/assert">
 
@@ -51,23 +52,6 @@
       <text>':</text>
 
       <apply-templates select="." mode="compiler:compile" />
-    </for-each>
-  <text>}</text>
-</template>
-
-
-<template match="lv:program" mode="compiler:compile-question-apis">
-  <text>{</text>
-    <for-each select="//lv:question[ lv:data ]">
-      <if test="position() > 1">
-        <text>,</text>
-      </if>
-
-      <value-of select="concat( '''',
-                                @id,
-                                ''':''',
-                                lv:data/@source,
-                                '''' )" />
     </for-each>
   <text>}</text>
 </template>

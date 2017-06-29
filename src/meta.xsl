@@ -25,7 +25,7 @@
             xmlns:xs="http://www.w3.org/2001/XMLSchema"
             xmlns:lv="http://www.lovullo.com"
             xmlns:luic="http://www.lovullo.com/liza/program/compiler"
-            xmlns:struct="http://www.lovullo.com/liza/proguic/util/struct"
+            xmlns:st="http://www.lovullo.com/liza/proguic/util/struct"
             xmlns:preproc="http://www.lovullo.com/program/preprocessor">
 
 
@@ -40,7 +40,7 @@
 
 @devnotice{This system is rudimentary and subject to change.}
 
-@dfn{Document metadata} is metadata stored outside of the bucket that
+@dfn{Document metadata} are metadata stored outside of the bucket that
   describes certain aspects of the document.@footnote{
     Terminology note: ``document'' and ``quote'' are the same thing;
       the latter is transitioning to the former for generality.}
@@ -81,9 +81,9 @@ Document metadata are only serialized for later use
 -->
 <template mode="luic:serialize" priority="5"
           match="lv:meta">
-  <sequence select="struct:dict-from-keyed-elements( 'id',
-                                                     lv:field,
-                                                     luic:field-meta() )" />
+  <sequence select="st:dict-from-keyed-elements( 'id',
+                                                 lv:field,
+                                                 luic:field-meta() )" />
 </template>
 
 
@@ -101,13 +101,40 @@ Document metadata are only serialized for later use
     so we need only return an item for it to be merged with the
     containing dictionary.
 -->
-<function name="luic:field-meta" as="element( struct:item )">
+<function name="luic:field-meta" as="element( st:item )">
   <param name="field" as="element( lv:field )" />
 
   <variable name="data" as="element( lv:data )?"
             select="$field/lv:data" />
+  <variable name="maps" as="element( lv:map )*"
+            select="$data/lv:map" />
 
-  <sequence select="struct:item( string( $data/@source ), 'dapi' )" />
+  <!-- only generate map from value node if dapi ref exists -->
+  <variable name="value-map" as="element( st:item )?"
+            select="if ( $data ) then
+                        st:item( $data/lv:value/@from,
+                                 $field/@id )
+                      else
+                        ()" />
+
+  <variable name="mapsrc-dict" as="element( st:dict )"
+            select="st:dict(
+                      st:items-from-attrs(
+                        $data/@*[ not( local-name() = 'source' ) ] ) )" />
+
+  <variable name="mapdest-dict" as="element( st:dict )"
+            select="st:dict(
+                      ( $value-map,
+                        st:items-from-keyed-elements(
+                          'into', 'from', $maps ) ) )" />
+
+  <sequence select="st:item(
+                      st:dict(
+                        ( st:item( $data/@source, 'name' ),
+                          st:item( $data/lv:value/@from, 'value' ),
+                          st:item( $mapsrc-dict, 'mapsrc' ),
+                          st:item( $mapdest-dict, 'mapdest' ) ) ),
+                      'dapi' )" />
 </function>
 
 </stylesheet>
