@@ -228,7 +228,7 @@
               priority="5"
               match="lv:question[
                        ./lv:data
-                       or @id=//lv:data/@* ]">
+                       or @id=//lv:question/lv:data/@* ]">
   <param name="type" />
   <param name="id" />
   <param name="eventData" />
