@@ -120,13 +120,17 @@
 
 <!-- TODO: this is glue code; move it to a proper place -->
 <function name="luic:serialize-meta" as="xs:string">
-  <param name="elements" as="element()*" />
+  <param name="element" as="element( lv:meta )?" />
 
-  <variable name="result" as="element( struct:dict )">
-    <apply-templates select="$elements" mode="luic:serialize" />
+  <variable name="result" as="element( struct:dict )?">
+    <apply-templates select="$element" mode="luic:serialize" />
   </variable>
 
-  <sequence select="struct:to-json( $result )" />
+  <sequence select="struct:to-json(
+                      if ( empty( $result ) ) then
+                          struct:dict( () )
+                        else
+                          $result )" />
 </function>
 
 
