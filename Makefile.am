@@ -27,9 +27,11 @@ apply_src  := $(shell find "$(path_src)" "$(path_test)" \
 apply_dest := $(apply_src:%.xsl=%.xsl.apply)
 
 .DELETE_ON_ERROR:
-.PHONY: test check applies
+.PHONY: nodoc test check applies
 
-all: applies
+all: nodoc
+
+nodoc: applies
 
 test: check
 check: | applies
