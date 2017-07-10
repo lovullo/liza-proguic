@@ -45,3 +45,6 @@ applies: $(apply_dest)
 	    -xsl:"$(HOXSL)/src/transform/apply-gen.xsl" \
 	    "$<" > "$@"
 
+clean-local:
+	$(RM) $(apply_dest)
+
