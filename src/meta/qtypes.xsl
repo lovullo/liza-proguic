@@ -31,15 +31,17 @@
           match="lv:question
                  |lv:question/lv:option
                  |lv:display
-                 |lv:external">
+                 |lv:external
+                 |lv:calc">
   <if test="position() > 1">
     <text>,</text>
   </if>
+  <message select="." />
 
-  <!-- ids may be generated for elements that use @ref, so have @ref
-       take precedence -->
+  <!-- XXX: convoluted; ids may be generated for elements that use @ref, so
+       have @ref take precedence (unless lv:calc) -->
   <variable name="id"
-            select="if ( @ref ) then @ref else @id" />
+            select="if ( @ref and not( @store ) ) then @ref else @id" />
   <variable name="type"
             select="qtype:parse-type( @type )" />
   <variable name="dim"
@@ -48,9 +50,6 @@
 
   <choose>
     <when test="ancestor::lv:set">
-      <variable name="id"
-                select="if ( @ref ) then @ref else @id" />
-
       <sequence select="qtype:process-set(
                           $id,
                           $type,

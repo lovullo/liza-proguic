@@ -45,8 +45,9 @@
                    select="//lv:question,
                            //lv:question/lv:option[ @id ],
                            //lv:answer,
-                           //lv:display[@type],
-                           //lv:external" />
+                           //lv:display[ @type ],
+                           //lv:external,
+                           //lv:calc[ @store = 'true' ]" />
 
   <text>},qdata:{</text>
   <apply-templates select="//lv:question[@type='select']" mode="meta-qdata" />
