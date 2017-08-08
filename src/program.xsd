@@ -1575,6 +1575,16 @@
     </xs:annotation>
   </xs:attribute>
 
+  <xs:attribute name="enctype" type="xs:NCName">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        MIME media encoding type for HTTP POST.
+
+        Default for REST is application/x-www-form-urlencoded if unspecified.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
   <xs:attribute name="combined" type="xs:boolean">
     <xs:annotation>
       <xs:documentation xml:lang="en">
