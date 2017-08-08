@@ -36,7 +36,6 @@
   <if test="position() > 1">
     <text>,</text>
   </if>
-  <message select="." />
 
   <!-- XXX: convoluted; ids may be generated for elements that use @ref, so
        have @ref take precedence (unless lv:calc) -->
