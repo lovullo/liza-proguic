@@ -65,12 +65,13 @@
 
   The generated code is an object literal describing the API.
 -->
-<template match="lv:api[@type='rest' or @type='local']" mode="compiler:compile" priority="5">
+<template match="lv:api[@type='rest' or @type='local' or @type='quote']"
+          mode="compiler:compile" priority="5">
   <variable name="api" select="." />
 
   <text>{</text>
     <!-- simply copy over the string values of each of these attributes -->
-    <for-each select="('type', 'source', 'method')">
+    <for-each select="('type', 'source', 'method', 'enctype')">
       <variable name="attr" select="." />
 
       <value-of select="$attr" />
