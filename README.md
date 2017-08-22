@@ -14,6 +14,13 @@ Compiles a declarative program definition ("program XML") into a format
 understood by Liza.
 
 
+## Documentation
+Compiled documentation is available [via our GitLab
+mirror](https://lovullo.gitlab.io/liza-proguic/), which uses the same build
+pipeline as we do on our internal GitLab instance.  It contains the current
+state of master (with some delay), not just the most recent tag.
+
+
 ## License
 liza-proguic is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
