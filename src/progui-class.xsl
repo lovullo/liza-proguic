@@ -1518,8 +1518,9 @@
 -->
 <template name="build-defaults">
   <for-each select="
-      //lv:question
-      |//lv:external[ @type ]
+      //lv:question,
+      //lv:external[ @type ],
+      //lv:calc[ @store = 'true' ]
     ">
     <!-- add delimiter -->
     <if test="position() > 1">
