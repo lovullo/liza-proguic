@@ -94,7 +94,7 @@ Free Documentation License".
 
 
 @include compilation.texi
-@include ../src/meta.texi
+@include src/meta.texi
 @include util.texi
 @include license.texi
 

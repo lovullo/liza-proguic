@@ -17,4 +17,4 @@ This appendix contains information about various functions and
 * Serialization:: Serializing data.
 @end menu
 
-@include ../src/util/serialize.texi
+@include src/util/serialize.texi
