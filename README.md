@@ -15,10 +15,9 @@ understood by Liza.
 
 
 ## Documentation
-Compiled documentation is available [via our GitLab
+Compiled documentation for the latest release is available [via our GitLab
 mirror](https://lovullo.gitlab.io/liza-proguic/), which uses the same build
-pipeline as we do on our internal GitLab instance.  It contains the current
-state of master (with some delay), not just the most recent tag.
+pipeline as we do on our internal GitLab instance.
 
 
 ## License

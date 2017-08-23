@@ -1,0 +1,35 @@
+image: lovullo/rater-ci
+
+stages:
+    - build
+    - deploy
+
+before_script:
+    - apt-get update
+    - apt-get -y install --no-install-recommends texinfo texlive-latex-base
+    - git submodule update --init --recursive
+    - git clone https://gitlab.com/mikegerwitz/hoxsl
+
+build:
+    stage: build
+    script:
+        - export SAXON_CP=/usr/share/ant/lib/saxon9/saxon9he.jar
+        - autoreconf -fvi
+        - ./configure
+        - make all check info pdf html
+    artifacts:
+        paths:
+            - doc/
+        expire_in: 30 min
+
+pages:
+    stage: deploy
+    script:
+        - mkdir -p public/doc
+        - mv doc/liza-proguic.html/* doc/liza-proguic.pdf doc/liza-proguic.info public/
+    artifacts:
+        paths:
+            - public/
+        expire_in: 30 min
+    only:
+        - tags
