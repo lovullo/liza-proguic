@@ -2,7 +2,7 @@
 <!--
   Builds JSON-formatted program metadata
 
-  Copyright (C) 2017 R-T Specialty, LLC.
+  Copyright (C) 2017, 2018 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 
@@ -72,22 +72,15 @@
 
   <text></text>
   <value-of select="@id" />
-  <text>:{</text>
+  <text>:</text>
 
-  <!-- add each of the options -->
-  <for-each select="lv:option">
-    <if test="position() > 1">
-      <text>,</text>
-    </if>
+  <sequence select="struct:to-json(
+                      struct:dict(
+                        for $option in lv:option
+                          return struct:item(
+                            normalize-space( $option ),
+                            string( $option/@value ) ) ) )" />
 
-    <text>'</text>
-    <value-of select="replace( @value, &quot;'&quot;, &quot;\\'&quot; )" />
-    <text>':'</text>
-    <value-of select="normalize-space( . )" />
-    <text>'</text>
-  </for-each>
-
-  <text>}</text>
 </template>
 
 
