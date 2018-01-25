@@ -2,7 +2,7 @@
 <!--
   Program UI package for use with TAME
 
-  Copyright (C) 2017 R-T Specialty, LLC.
+  Copyright (C) 2017, 2018 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 
@@ -140,7 +140,7 @@
       <lv:classify as="--set-{$id}"
                    desc="{local-name()} {@id} is set"
                    keep="true">
-        <t:match-gt on="ui_q_{@id}" const="0" />
+        <t:match-gt on="ui_q_{@id}" value="#0" />
       </lv:classify>
     </for-each>
   </lv:section>
