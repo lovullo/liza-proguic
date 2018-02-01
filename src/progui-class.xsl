@@ -1738,6 +1738,17 @@
       <variable name="ref" select="@ref" />
       <variable name="groups" select="$root//lv:group[ @link=$ref ]" />
 
+      <!-- this has been the cause of some nasty bugs in the past: if only
+           one group is part of a link, then it's probably a bug based on a
+           misinterpretation of how links work (they're not group refs) -->
+      <if test="count( $groups ) = 1">
+        <message terminate="yes"
+                 select="concat( 'error: group `', $groups[1]/@id,
+                                 ''' is the only member of link `',
+                                 $ref, '''; either remove or set @link on ',
+                                 'other groups' )" />
+      </if>
+
       <for-each select="$groups//lv:question|$groups//lv:question-copy">
         <if test="position() > 1">
           <text>,</text>

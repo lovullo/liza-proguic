@@ -39,9 +39,10 @@
   <xsl:if test="@id">
     <xsl:value-of select="@id"/>
   </xsl:if>
-  <!-- if no id was given, generate one -->
+  <!-- if no id, then we have a problem -->
   <xsl:if test="not(@id)">
-    <xsl:value-of select="generate-id(.)" />
+    <xsl:message terminate="yes"
+                 select="'Missing group id: ', @*" />
   </xsl:if>
 </xsl:template>
 
