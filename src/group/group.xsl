@@ -31,6 +31,7 @@
 <xsl:include href="table.xsl"/>
 <xsl:include href="sidetable.xsl"/>
 <xsl:include href="collapsetable.xsl"/>
+<xsl:include href="stacked.xsl"/>
 <xsl:include href="tabbed.xsl"/>
 <xsl:include href="tabbedblock.xsl"/>
 
