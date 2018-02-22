@@ -48,35 +48,35 @@
     <lv:import package="../rater/core" />
     <lv:import package="package-dfns" />
 
-    <variable name="qpreds" as="element( lvp:predicate )*"
-              select="//lvp:predicate[ @type='q' ]" />
+    <variable name="questions" as="element( lvp:question )*"
+              select="//lvp:question[ @id ]" />
 
-    <apply-templates select="lvp:pred-uniq( $qpreds )" />
+    <apply-templates select="lvp:question-uniq( $questions )" />
   </lvm:program-map>
 </template>
 
 
-<function name="lvp:pred-uniq" as="element( lvp:predicate )*">
-  <param name="qpreds" as="element( lvp:predicate )*" />
+<function name="lvp:question-uniq" as="element( lvp:question )*">
+  <param name="questions" as="element( lvp:question )*" />
 
   <!-- copy to permit sibling comparison -->
   <variable name="copy" as="document-node()">
     <document>
-      <for-each select="$qpreds">
+      <for-each select="$questions">
         <copy-of select="." />
       </for-each>
     </document>
   </variable>
 
-  <sequence select="$copy/lvp:predicate[
-                      not( @ref =
-                        preceding-sibling::lvp:predicate/@ref ) ]" />
+  <sequence select="$copy/lvp:question[
+                      not( @id =
+                        preceding-sibling::lvp:question/@id ) ]" />
 </function>
 
 
-<template match="lvp:predicate">
-  <lvm:map to="ui_q_{@ref}">
-    <lvm:from name="{@ref}" default="1">
+<template match="lvp:question">
+  <lvm:map to="ui_q_{@id}">
+    <lvm:from name="{@id}" default="1">
       <lvm:translate key=""  value="0" />
       <lvm:translate key="0" value="0" />
     </lvm:from>
