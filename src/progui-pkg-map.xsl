@@ -38,7 +38,7 @@
 
 <template match="lvp:program" as="element( lvm:program-map )"
           priority="5">
-  <lvm:program-map src="program">
+  <lvm:program-map src="program.expanded">
     <!-- intentional whitespace -->
     <comment>
       WARNING: Do NOT modify this file!
