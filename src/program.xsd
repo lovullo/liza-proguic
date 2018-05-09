@@ -116,6 +116,7 @@
     <xs:enumeration value="tabbed" />
     <xs:enumeration value="tabbedblock" />
     <xs:enumeration value="accordion" />
+    <xs:enumeration value="stacked" />
   </xs:restriction>
 </xs:simpleType>
 
@@ -946,6 +947,14 @@
       <xs:documentation xml:lang="en">
         Label to wrap the actual element with, if supported by the question type
         (e.g. radio labels).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="maxwidth" type="xs:integer">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Used by certain fields (such as textareas) to set the size of the input
+        element. Only recognized by certain question types.
       </xs:documentation>
     </xs:annotation>
   </xs:attribute>
