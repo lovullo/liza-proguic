@@ -1,7 +1,7 @@
 <!--
   Serialization utility functions
 
-  Copyright (C) 2017 R-T Specialty, LLC.
+  Copyright (C) 2017, 2018 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 
@@ -219,6 +219,23 @@ Two functions provide this convenience:
 
   <sequence select="struct:dict(
                       struct:items-from-attrs( $element/@* ) )" />
+</function>
+
+
+<!--
+  Convert a sequence of elements into an array of dictionaries using element
+    attributes as dictionary key/value pairs.
+
+  Each element is processed using
+    @ref{struct:dict-from-attrs#1,,@code{struct:dict-from-attrs}}.
+-->
+<function name="struct:dict-array-from-elements" as="element( struct:array )">
+  <param name="elements" as="element()*" />
+
+  <sequence select="struct:array(
+                      for $element in $elements
+                        return struct:item(
+                                 struct:dict-from-attrs( $element ) ) )" />
 </function>
 
 

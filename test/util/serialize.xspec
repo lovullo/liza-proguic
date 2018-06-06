@@ -2,7 +2,7 @@
 <!--
   Tests serialization
 
-  Copyright (C) 2017 LoVullo Associates, Inc.
+  Copyright (C) 2017, 2018 LoVullo Associates, Inc.
 
     This file is part of the Liza Program UI Compiler.
 
@@ -241,6 +241,47 @@
           <struct:item key="a">1</struct:item>
           <struct:item key="b">2</struct:item>
         </struct:dict>
+      </expect>
+    </scenario>
+  </scenario>
+
+
+  <scenario label="struct:dict-array-from-elements">
+    <scenario label="with no elemnts">
+      <call function="struct:dict-array-from-elements">
+        <param name="elements"
+               select="()" />
+      </call>
+
+      <expect label="produces empty array">
+        <struct:array />
+      </expect>
+    </scenario>
+
+
+    <scenario label="with elements">
+      <call function="struct:dict-array-from-elements">
+        <param name="element">
+          <foo:element a="1" b="2" />
+          <foo:element a="3" b="4" />
+        </param>
+      </call>
+
+      <expect label="produces dictionary array with key/value for each attr">
+        <struct:array>
+          <struct:item>
+            <struct:dict>
+              <struct:item key="a">1</struct:item>
+              <struct:item key="b">2</struct:item>
+            </struct:dict>
+          </struct:item>
+          <struct:item>
+            <struct:dict>
+              <struct:item key="a">3</struct:item>
+              <struct:item key="b">4</struct:item>
+            </struct:dict>
+          </struct:item>
+        </struct:array>
       </expect>
     </scenario>
   </scenario>
