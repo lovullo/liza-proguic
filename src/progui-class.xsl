@@ -140,6 +140,8 @@
     <text>version:'</text><value-of select="@version" /><text>',</text>
     <text>title:'</text><value-of select="@title" /><text>',</text>
     <text>steps:[</text><call-template name="build-steps" /><text>],</text>
+    <text>groups:</text><call-template name="build-groups" /><text>,</text>
+    <text>fields:</text><call-template name="build-fields" /><text>,</text>
     <text>help:{</text><call-template name="build-help" /><text>},</text>
     <text>internal:{</text><call-template name="build-internal" /><text>},</text>
     <text>defaults:{</text><call-template name="build-defaults" /><text>},</text>
@@ -225,19 +227,45 @@
 
 
 <!--
-  Generates array containing step titles
+  Generate array of step titles, types, and groups
+
+  The `group' key contains the identifiers of groups, ordered.
 -->
 <template name="build-steps">
   <for-each select="//lv:step">
     <!-- since there is no step 0, always add delimiter -->
     <text>,</text>
 
-    <text>{title:'</text>
-    <value-of select="@title" />
-    <text>',type:'</text>
-    <value-of select="@type" />
-    <text>'}</text>
+    <sequence select="st:to-json(
+                        st:dict( (
+                          st:item( @title, 'title' ),
+                          st:item( @type,  'type'  ),
+                          st:item( st:array( (
+                                     for $group in lv:group
+                                       return st:item( $group/@id ) ) ),
+                                   'groups' ) ) ) )" />
   </for-each>
+</template>
+
+
+<!--
+  Serialize XML attributes for groups, indexed by id
+-->
+<template name="build-groups">
+  <sequence select="st:to-json(
+                      st:dict-from-keyed-elements( 'id', //lv:group ) )" />
+</template>
+
+
+<!--
+  Serialize XML attributes for questions and externals, indexed by id
+-->
+<template name="build-fields">
+  <sequence select="st:to-json(
+                      st:dict-from-keyed-elements(
+                        'id',
+                        ( //lv:question,
+                          //lv:external ) ) )" />
 </template>
 
 
