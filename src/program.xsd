@@ -958,6 +958,14 @@
       </xs:documentation>
     </xs:annotation>
   </xs:attribute>
+  <xs:attribute name="maxlength" type="xs:integer">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Maximum text length of an input.  Only supported by certain question
+        types.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
   <xs:attribute name="required" type="xs:boolean">
     <xs:annotation>
       <xs:documentation xml:lang="en">

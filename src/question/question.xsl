@@ -37,10 +37,10 @@
   <xsl:param name="prefix" />
   <xsl:param name="type" select="@type" />
   <xsl:param name="hidden" select="@hidden" />
-  <xsl:param name="maxlength" />
+  <xsl:param name="maxlength" select="@maxlength" />
 
   <input type="text">
-    <xsl:if test="$maxlength">
+    <xsl:if test="$maxlength and not( $maxlength = '' )">
       <xsl:attribute name="maxlength" select="$maxlength" />
     </xsl:if>
 
@@ -58,7 +58,12 @@
   <xsl:param name="prefix" />
   <xsl:param name="type" select="@type" />
   <xsl:param name="hidden" select="@hidden" />
-  <xsl:param name="maxlength" select="'1000'" />
+  <xsl:param name="maxlength"
+             select="if ( @maxlength and not( @maxlength = '' ) ) then
+                         @maxlength
+                       else
+                         '1000'" />
+
   <textarea>
     <xsl:attribute name="maxlength"
                    select="$maxlength" />
