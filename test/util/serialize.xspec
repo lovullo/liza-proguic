@@ -30,6 +30,9 @@
   <variable name="foo:element" as="element( foo:element )">
     <foo:element foo="a" bar="b" />
   </variable>
+  <variable name="foo:elementw" as="element( foo:element )">
+    <foo:element foo="     white       space      " />
+  </variable>
 
   <variable name="foo:multi" as="element( foo:element )+">
     <foo:element depth="1.0">
@@ -210,6 +213,18 @@
       <expect label="produces items for each attribute">
         <struct:item key="foo">a</struct:item>
         <struct:item key="bar">b</struct:item>
+      </expect>
+    </scenario>
+
+
+    <scenario label="with attributes with extra whitespace">
+      <call function="struct:items-from-attrs">
+        <param name="attrs"
+               select="$foo:elementw/@*" />
+      </call>
+
+      <expect label="normalizes attribute whitespace">
+        <struct:item key="foo">white space</struct:item>
       </expect>
     </scenario>
   </scenario>

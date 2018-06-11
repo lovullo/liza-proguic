@@ -195,13 +195,14 @@ Two functions provide this convenience:
   Generate keys from attributes.
 
   A key/value pair will be created for each attribute in @var{attrs}
-  using the attribute's local name as the@tie{}key.
+  using the attribute's local name as the@tie{}key.  Whitespace in attribute
+  values will be normalized.
 -->
 <function name="struct:items-from-attrs" as="element( struct:item )*">
   <param name="attrs" as="attribute()*" />
 
   <sequence select="for $attr in $attrs
-                      return struct:item( $attr,
+                      return struct:item( normalize-space( $attr ),
                                           $attr/local-name() )" />
 </function>
 
