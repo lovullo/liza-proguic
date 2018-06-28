@@ -160,6 +160,7 @@
     <text>cretain:{</text><call-template name="build-field-retains" /><text>},</text>
     <text>whens:{</text><call-template name="build-field-when" /><text>},</text>
     <text>qwhens:{</text><call-template name="build-qwhen-list" /><text>},</text>
+    <text>dapimap:</text><call-template name="build-dapimap" /><text>,</text>
     <text>kbclear:{</text><call-template name="build-kbclear" /><text>},</text>
     <text>requiredFields:{</text><call-template name="build-required-fields" /><text>},</text>
     <text>meta:</text><call-template name="build-meta" /><text>,</text>
@@ -1927,6 +1928,36 @@
     </for-each>
   </for-each>
 </template>
+
+
+<!--
+  Build dapi map for each question containing lv:data
+
+  The output format is:
+
+    { "question_id": { "into": "param" } }
+-->
+<template name="build-dapimap">
+  <sequence select="
+    st:to-json(
+      st:dict(
+        for $question in //lv:question[ lv:data ]
+          return st:item( compiler:dapi-qmap( $question ),
+                          $question/@id ) ) )" />
+</template>
+
+
+<!--
+  Generate input map for given question
+-->
+<function name="compiler:dapi-qmap" as="element(st:dict)">
+  <param name="question" as="element( lv:question )" />
+
+  <sequence select="st:dict( st:items-from-keyed-elements(
+                               'into',
+                               'param',
+                               $question/lv:data/lv:map ) )" />
+</function>
 
 
 <!-- kickback clear -->

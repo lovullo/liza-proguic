@@ -506,21 +506,6 @@
 </template>
 
 
-<template match="lv:data" mode="compiler:gen-data-map">
-  <for-each select="./lv:map">
-    <if test="position() > 1">
-      <text>,</text>
-    </if>
-
-    <text>'</text>
-      <value-of select="@into" />
-    <text>':'</text>
-      <value-of select="@param" />
-    <text>'</text>
-  </for-each>
-</template>
-
-
 <!--
   Handles param expansion when a field containing API data changes
 -->
@@ -595,9 +580,9 @@
            become available in the near future) -->
       <text>if(expand)this.dapiManager.expandFieldData('</text>
         <value-of select="../@id" />
-      <text>',i,bucket,{</text>
-        <apply-templates select="." mode="compiler:gen-data-map" />
-      <text>},true,diff);</text>
+      <text>',i,bucket,this.dapimap['</text>
+        <value-of select="../@id" />
+      <text>'],true,diff);</text>
     <text>}</text>
 
   <text>}</text>
