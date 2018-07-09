@@ -62,8 +62,17 @@
     <apply-templates select="." mode="preproc:expand" />
   </variable>
 
+  <variable name="errors" as="element( preproc:error )*"
+            select="$result//preproc:error" />
+
   <!-- recurse if another pass has been scheduled -->
   <choose>
+    <when test="$errors">
+      <apply-templates select="$errors" mode="preproc:error" />
+      <message terminate="yes"
+               select="concat( 'fatal: ', count( $errors ), ' error(s)' )" />
+    </when>
+
     <when test="$result//preproc:repass">
       <apply-templates select="$result" mode="preprocess" />
     </when>
@@ -73,6 +82,15 @@
       <copy-of select="$result" />
     </otherwise>
   </choose>
+</template>
+
+
+<!--
+  Render errors to stdout
+-->
+<template mode="preproc:error" priority="1"
+          match="preproc:error">
+  <message select="concat( 'error: ', text() )" />
 </template>
 
 
@@ -447,6 +465,37 @@
     <lv:map param="{lv:label/@from}" into="{parent::lv:question/@id}_label" />
   </copy>
 </template>
+
+
+<!--
+  Answers inherit types of their parent and cannot be overridden
+
+  If an override is needed (not advisable!), display should be used instead.
+-->
+<template mode="preproc:expand" priority="8"
+          match="lv:answer[ @type ]">
+  <preproc:error>
+    <text>lv:answer/@type is not supported for `</text>
+    <value-of select="@ref" />
+    <text>'; use lv:display if type overrides are needed</text>
+  </preproc:error>
+</template>
+
+
+<!--
+  Answers must reference questions
+
+  Displaying arbitrary bucket values requires the use of lv:display.
+-->
+<template mode="preproc:expand" priority="9"
+          match="lv:answer[ not( @ref = //lv:question/@id ) ]">
+  <preproc:error>
+    <text>lv:answer reference `</text>
+    <value-of select="@ref" />
+    <text>' is not a question</text>
+  </preproc:error>
+</template>
+
 
 <template match="lv:answer[ @ref=//lv:question[ lv:data/lv:label ]/@id ]" mode="preproc:expand" priority="5">
   <!-- convert into an lv:display, since we won't be referencing an lv:question anymore -->
