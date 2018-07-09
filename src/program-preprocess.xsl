@@ -62,8 +62,17 @@
     <apply-templates select="." mode="preproc:expand" />
   </variable>
 
+  <variable name="errors" as="element( preproc:error )*"
+            select="$result//preproc:error" />
+
   <!-- recurse if another pass has been scheduled -->
   <choose>
+    <when test="$errors">
+      <apply-templates select="$errors" mode="preproc:error" />
+      <message terminate="yes"
+               select="concat( 'fatal: ', count( $errors ), ' error(s)' )" />
+    </when>
+
     <when test="$result//preproc:repass">
       <apply-templates select="$result" mode="preprocess" />
     </when>
@@ -73,6 +82,15 @@
       <copy-of select="$result" />
     </otherwise>
   </choose>
+</template>
+
+
+<!--
+  Render errors to stdout
+-->
+<template mode="preproc:error" priority="1"
+          match="preproc:error">
+  <message select="concat( 'error: ', text() )" />
 </template>
 
 
