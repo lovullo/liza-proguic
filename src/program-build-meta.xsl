@@ -41,12 +41,13 @@
 <template name="build-meta">
   <text>{qtypes:{</text>
   <!-- XXX: qtype:parse-element doesn't accept lv:answer; research! -->
+  <!-- XXX: displays override one-another -->
   <apply-templates mode="qtype:parse-element"
                    select="//lv:question,
                            //lv:question/lv:option[ @id ],
                            //lv:answer,
                            //lv:display[ @type ],
-                           //lv:external,
+                           //lv:external[ @type ],
                            //lv:calc[ @store = 'true' ]" />
 
   <text>},qdata:{</text>
