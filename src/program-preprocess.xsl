@@ -457,12 +457,15 @@
   <lv:external id="{@id}_label" type="text" />
 </template>
 
-<template match="lv:question/lv:data[ lv:label ]" mode="preproc:expand" priority="5">
+<template mode="preproc:expand" priority="5"
+          match="lv:question/lv:data[
+                   lv:label
+                   and not( lv:map[ @preproc:map-label ] ) ]">
   <copy>
     <copy-of select="@*|*" />
 
     <!-- add a map to our label ref to be populated with the rest of our data -->
-    <lv:map param="{lv:label/@from}" into="{parent::lv:question/@id}_label" />
+    <lv:map param="{lv:label/@from}" into="{parent::lv:question/@id}_label" preproc:map-label="true" />
   </copy>
 </template>
 
