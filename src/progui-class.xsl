@@ -2,7 +2,7 @@
 <!--
   Builds Program JavaScript classes to be used both server and client side
 
-  Copyright (C) 2017 R-T Specialty, LLC.
+  Copyright (C) 2017, 2018 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 
@@ -22,6 +22,7 @@
 -->
 <stylesheet version="2.0"
             xmlns="http://www.w3.org/1999/XSL/Transform"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
             xmlns:lv="http://www.lovullo.com"
             xmlns:compiler="http://www.lovullo.com/program/compiler"
             xmlns:assert="http://www.lovullo.com/assert"
@@ -1668,7 +1669,10 @@
 
 
 <!--
-    Builds object containing field names for each group
+  Builds object containing field names for each group
+
+  TODO: This potentially does a lot of duplicate work by recursing on groups
+  that may have already been processed.
 -->
 <template name="build-group-fields">
   <param name="linked" select="true()" />
@@ -1684,11 +1688,8 @@
     <value-of select="@id" />
     <text>':[</text>
 
-    <variable name="refs"
-                  select="lv:question
-                          |lv:question/lv:option[ @id ]
-                          |lv:static[ @id ]
-                          |lv:question-copy" />
+    <variable name="refs" as="element()*"
+              select="compiler:group-refs( ., $linked, $visonly )" />
 
     <for-each select="$refs">
       <!-- add delimiter -->
@@ -1697,45 +1698,55 @@
       </if>
 
       <text>'</text>
-      <value-of select="@id|@ref" />
+      <value-of select="if ( @id ) then @id else @ref" />
       <text>'</text>
     </for-each>
-
-    <!-- grab all lv:display's with ids -->
-    <for-each select="lv:display[ @id ]|lv:answer[ @id ]|lv:external[ @id and not( $visonly = true() ) ]">
-      <!-- add delimiter if necessary -->
-      <if test="$refs or position() > 1">
-        <text>,</text>
-      </if>
-
-      <text>'</text>
-      <value-of select="@id" />
-      <text>'</text>
-    </for-each>
-
-    <variable name="thisId" select="@id" />
-    <variable name="link" select="@link" />
-
-    <!-- any links? -->
-    <if test="$linked and $link">
-      <!-- todo: question-ref -->
-      <for-each select="//lv:group[ ( @link = $link ) and ( @id != $thisId ) ]">
-        <for-each select="lv:question|lv:static[@id]">
-          <!-- add delimiter (since groups must contain at least one question,
-               there's always going to be a value before the delimiter from the
-               origin group -->
-          <text>,</text>
-
-          <text>'</text>
-          <value-of select="@id" />
-          <text>'</text>
-        </for-each>
-      </for-each>
-    </if>
 
     <text>]</text>
   </for-each>
 </template>
+
+
+<!--
+  Get sequence of all refs for group
+
+  If LINKED, then include refs of all linked groups.
+  If VISONLY, only do not include externals.
+
+  TODO: This potentially does a lot of duplicate work by recursing on groups
+  that may have already been processed.  See `build-group-fields' above.
+-->
+<function name="compiler:group-refs" as="element()*">
+  <param name="group"   as="element( lv:group )" />
+  <param name="linked"  as="xs:boolean" />
+  <param name="visonly" as="xs:boolean" />
+
+  <variable name="link" as="xs:string?"
+            select="$group/@link" />
+
+  <variable name="linked-groups" as="element( lv:group )*"
+            select="if ( $linked and $link ) then
+                        $group/root()//lv:group[
+                          ( @link = $link )
+                          and ( @id != $group/@id ) ]
+                      else
+                        ()" />
+
+  <variable name="questions" as="element( lv:question )*"
+            select="$group/lv:question" />
+
+  <sequence select="$questions,
+                    $questions/lv:option[ @id ],
+                    $group/lv:static[ @id ],
+                    $group/lv:question-copy,
+                    $group/lv:display[ @id ],
+                    $group/lv:answer[ @id ],
+                    $group/lv:external[ @id and not( $visonly = true() ) ],
+                    for $linked-group in $linked-groups
+                      return compiler:group-refs(
+                        $linked-group, false(), $visonly )
+                    " />
+</function>
 
 
 <template name="build-linked-fields">
