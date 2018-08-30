@@ -34,6 +34,7 @@
   <xsl:variable name="tabTitle" select="lv:prop[@name='tabTitle']" />
   <xsl:variable name="supplier" select="lv:prop[@name='supplier']" />
   <xsl:variable name="lengthField" select="lv:prop[@name='lengthField']" />
+  <xsl:variable name="defaultSelectedField" select="lv:prop[@name='defaultSelectedField']" />
 
   <xsl:variable name="tabextract-src" select="lv:prop[@name='tabextractSrc']" />
   <xsl:variable name="tabextract-dest"   select="lv:prop[@name='tabextractDest']" />
@@ -51,7 +52,8 @@
   <div data-disable-flags="{$disableFlags}"
     data-tabextract-src="{$tabextract-src}"
     data-tabextract-dest="{$tabextract-dest}"
-    data-length-field="{$lengthField}">
+    data-length-field="{$lengthField}"
+    data-default-selected-field="{$defaultSelectedField}">
 
     <xsl:attribute name="class">
       <xsl:text>groupTabbedBlock</xsl:text>
