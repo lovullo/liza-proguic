@@ -29,6 +29,7 @@
 <xsl:include href="address.xsl"/>
 <xsl:include href="city.xsl"/>
 <xsl:include href="currency.xsl"/>
+<xsl:include href="datalist.xsl"/>
 <xsl:include href="date.xsl"/>
 <xsl:include href="dba.xsl"/>
 <xsl:include href="dollars.xsl"/>

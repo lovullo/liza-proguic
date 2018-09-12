@@ -148,6 +148,7 @@
     <xs:enumeration value="textarea" />
     <xs:enumeration value="explain" />
     <xs:enumeration value="currency" />
+    <xs:enumeration value="datalist" />
     <xs:enumeration value="date" />
     <xs:enumeration value="dollars" />
     <xs:enumeration value="float" />
