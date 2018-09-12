@@ -68,15 +68,16 @@
   <input>
       <xsl:attribute name="list">
           <xsl:call-template name="qid">
-              <xsl:with-param name="id" select="$genid" />
+              <xsl:with-param name="id" select="concat('datalist-_', $genid)" />
           </xsl:call-template>
       </xsl:attribute>
-      <xsl:attribute name="name">
-          <xsl:call-template name="qname">
-              <xsl:with-param name="index" select="$index" />
-              <xsl:with-param name="prefix" select="$prefix" />
-          </xsl:call-template>
-      </xsl:attribute>
+
+  <xsl:attribute name="name">
+    <xsl:call-template name="qname">
+      <xsl:with-param name="index" select="$index" />
+      <xsl:with-param name="prefix" select="$prefix" />
+    </xsl:call-template>
+  </xsl:attribute>
   </input>
 </xsl:template>
 

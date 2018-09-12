@@ -29,7 +29,7 @@
   <xsl:param name="id" select="@id" />
   <xsl:param name="prefix" />
 
-  <xsl:call-template name="generic-list">
+   <xsl:call-template name="generic-list">
     <xsl:with-param name="id" select="$id" />
     <xsl:with-param name="prefix" select="$prefix" />
   </xsl:call-template>
@@ -37,7 +37,7 @@
   <datalist>
     <xsl:call-template name="generic-attributes">
       <xsl:with-param name="id" select="$id" />
-      <xsl:with-param name="prefix" select="$prefix" />
+      <xsl:with-param name="prefix" select="concat('datalist-', $prefix)" />
     </xsl:call-template>
 
     <xsl:for-each select="lv:option">
