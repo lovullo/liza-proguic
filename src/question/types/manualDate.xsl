@@ -2,7 +2,7 @@
 <!--
   Date question type without helper dialogs
 
-  Copyright (C) 2017-2018 R-T Specialty, LLC.
+  Copyright (C) 2017 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 

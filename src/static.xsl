@@ -3,7 +3,7 @@
   Single-page template used when XSL version doesn't support result-document,
   which is added in version 2.0
 
-  Copyright (C) 2017-2018 R-T Specialty, LLC.
+  Copyright (C) 2017 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 
