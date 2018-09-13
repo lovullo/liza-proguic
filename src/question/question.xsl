@@ -57,6 +57,8 @@
   <xsl:param name="id" select="@id" />
   <xsl:param name="prefix" />
   <xsl:param name="index" select="''" />
+  <xsl:param name="type" select="@type" />
+  <xsl:param name="hidden" select="@hidden" />
 
   <xsl:variable name="genid">
       <xsl:call-template name="generate-id">
@@ -72,12 +74,19 @@
           </xsl:call-template>
       </xsl:attribute>
 
-  <xsl:attribute name="name">
-    <xsl:call-template name="qname">
-      <xsl:with-param name="index" select="$index" />
+      <xsl:attribute name="name">
+        <xsl:call-template name="qname">
+          <xsl:with-param name="index" select="$index" />
+          <xsl:with-param name="prefix" select="$prefix" />
+        </xsl:call-template>
+      </xsl:attribute>
+
+    <xsl:call-template name="generic-attributes">
+      <xsl:with-param name="id" select="$id" />
+      <xsl:with-param name="type" select="$type" />
+      <xsl:with-param name="hidden" select="$hidden" />
       <xsl:with-param name="prefix" select="$prefix" />
     </xsl:call-template>
-  </xsl:attribute>
   </input>
 </xsl:template>
 
