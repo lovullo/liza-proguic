@@ -2,7 +2,7 @@
 <!--
   Generic template used for all text fields
 
-  Copyright (C) 2017 R-T Specialty, LLC.
+  Copyright (C) 2017, 2018 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 
@@ -53,6 +53,43 @@
   </input>
 </xsl:template>
 
+<xsl:template name="generic-list">
+  <xsl:param name="id" select="@id" />
+  <xsl:param name="prefix" />
+  <xsl:param name="index" select="''" />
+  <xsl:param name="type" select="@type" />
+  <xsl:param name="hidden" select="@hidden" />
+
+  <xsl:variable name="genid">
+      <xsl:call-template name="generate-id">
+          <xsl:with-param name="id" select="$id" />
+          <xsl:with-param name="prefix" select="$prefix" />
+      </xsl:call-template>
+  </xsl:variable>
+
+  <input>
+      <xsl:attribute name="list">
+          <xsl:call-template name="qid">
+              <xsl:with-param name="id" select="concat('datalist-_', $genid)" />
+          </xsl:call-template>
+      </xsl:attribute>
+
+      <xsl:attribute name="name">
+        <xsl:call-template name="qname">
+          <xsl:with-param name="index" select="$index" />
+          <xsl:with-param name="prefix" select="$prefix" />
+        </xsl:call-template>
+      </xsl:attribute>
+
+    <xsl:call-template name="generic-attributes">
+      <xsl:with-param name="id" select="$id" />
+      <xsl:with-param name="type" select="$type" />
+      <xsl:with-param name="hidden" select="$hidden" />
+      <xsl:with-param name="prefix" select="$prefix" />
+    </xsl:call-template>
+  </input>
+</xsl:template>
+
 <xsl:template name="generic-textarea">
   <xsl:param name="id" select="@id" />
   <xsl:param name="prefix" />
@@ -91,13 +128,10 @@
 
   <!-- generate the ref (may contain a prefix) -->
   <xsl:variable name="genid">
-    <xsl:if test="$prefix">
-      <xsl:value-of select="$prefix" />
-      <xsl:text>_</xsl:text>
-    </xsl:if>
-
-    <!-- add on the id -->
-    <xsl:value-of select="$id" />
+      <xsl:call-template name="generate-id">
+          <xsl:with-param name="id" select="$id" />
+          <xsl:with-param name="prefix" select="$prefix" />
+      </xsl:call-template>
   </xsl:variable>
 
   <xsl:attribute name="id">
@@ -517,6 +551,19 @@
   <xsl:if test="@default">
     <xsl:value-of select="@default" />
   </xsl:if>
+</xsl:template>
+
+<xsl:template name="generate-id">
+    <xsl:param name="id" select="@id" />
+    <xsl:param name="prefix" />
+
+    <xsl:if test="$prefix">
+        <xsl:value-of select="$prefix" />
+        <xsl:text>_</xsl:text>
+    </xsl:if>
+
+    <!-- add on the id -->
+    <xsl:value-of select="$id" />
 </xsl:template>
 
 </xsl:stylesheet>

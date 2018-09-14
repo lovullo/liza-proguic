@@ -2,7 +2,7 @@
 <!--
   All avalable question types
 
-  Copyright (C) 2017 R-T Specialty, LLC.
+  Copyright (C) 2017, 2018 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 
@@ -29,6 +29,7 @@
 <xsl:include href="address.xsl"/>
 <xsl:include href="city.xsl"/>
 <xsl:include href="currency.xsl"/>
+<xsl:include href="datalist.xsl"/>
 <xsl:include href="date.xsl"/>
 <xsl:include href="dba.xsl"/>
 <xsl:include href="dollars.xsl"/>
