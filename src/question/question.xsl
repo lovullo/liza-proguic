@@ -67,7 +67,7 @@
       </xsl:call-template>
   </xsl:variable>
 
-  <input type="text">
+  <input>
       <xsl:attribute name="list">
           <xsl:call-template name="qid">
               <xsl:with-param name="id" select="concat('datalist-_', $genid)" />
