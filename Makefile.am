@@ -22,8 +22,7 @@ path_src = src
 path_test = test
 #
 # all source files will be run through hoxsl; see `applies' target
-apply_src  := $(shell find "$(path_src)" "$(path_test)" \
-                        -name '*.xsl' )
+apply_src := $(path_src)/meta.xsl $(path_test)/util/serialize.xsl
 apply_dest := $(apply_src:%.xsl=%.xsl.apply)
 
 .DELETE_ON_ERROR:
