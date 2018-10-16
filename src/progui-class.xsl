@@ -1236,9 +1236,11 @@
 
               <!-- at this point, filter out all indexes that do not match the
                    given classification -->
-              <text>var indexes=this.cmatchCheck((cmatch['</text>
+              <text>var cmatchq=cmatch['</text>
                 <value-of select="$root_question_id" />
-              <text>']||{}).indexes,r);</text>
+              <text>'];</text>
+              <text>var indexes=this.cmatchCheck(</text>
+                <text>(cmatchq||{}).indexes,r,cmatchq);</text>
 
               <!-- proceed only if there's valid indexes remaining -->
               <text>if((indexes===true)||indexes.length){</text>
