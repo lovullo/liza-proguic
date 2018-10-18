@@ -28,6 +28,9 @@
             xmlns:assert="http://www.lovullo.com/assert"
             xmlns:preproc="http://www.lovullo.com/program/preprocessor">
 
+<!-- original root before processing -->
+<variable name="orig-root" select="." />
+
 
 <template match="lv:program[ not( @version ) ]" mode="preprocess">
   <!-- TODO: pass into stylesheet as a param -->
@@ -41,7 +44,12 @@
       <!-- add version attribute -->
       <attribute name="version" select="$version" />
 
-      <copy-of select="*" />
+      <!-- start by processing the fragment includes so that the rest of the
+           system can continue working as if it were one giant file , as it
+           was originally designed -->
+      <apply-templates select="node()" mode="preproc:include">
+        <with-param name="rel-root" select="$orig-root" />
+      </apply-templates>
     </copy>
   </variable>
 
@@ -49,6 +57,37 @@
     <apply-templates select="$root" mode="preprocess" />
   </document>
 </template>
+
+
+<!--
+  Recursively replace fragment includes with all child nodes of the fragment.
+
+  This is an include in a similar sense to a C preprocessor macro: the
+  contents of the file are placed in place of the include.
+-->
+<template match="lv:include[ @fragment ]" mode="preproc:include" priority="5">
+  <param name="rel-root" />
+
+  <variable name="doc" as="element( lv:program-fragment )"
+            select="document( concat( @fragment, '.xml' ), $rel-root )/lv:program-fragment" />
+
+  <!-- replace the include node with the children of the fragment, preprocessed -->
+  <apply-templates select="$doc/node()" mode="preproc:include">
+    <with-param name="rel-root" select="$doc" />
+  </apply-templates>
+</template>
+
+<template match="element()" mode="preproc:include" priority="1">
+  <copy>
+    <sequence select="@*" />
+    <apply-templates mode="preproc:include" />
+  </copy>
+</template>
+
+<template match="text()|comment()" mode="preproc:include" priority="1">
+  <sequence select="." />
+</template>
+
 
 <!--
   Triggers preprocessing (this is the preprocessor entry point)
