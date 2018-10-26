@@ -496,6 +496,23 @@
   <lv:external id="{@id}_label" type="text" />
 </template>
 
+
+<!--
+  Error when attempting to use an undefined dapi
+-->
+<template mode="preproc:expand" priority="7"
+          match="lv:question/lv:data[
+                   not( @source = ancestor::lv:program/lv:api/@id ) ]">
+  <preproc:error>
+    <text>Reference to unknown dapi `</text>
+      <value-of select="@source" />
+    <text>' by question `</text>
+      <value-of select="parent::lv:question/@id" />
+    <text>'</text>
+  </preproc:error>
+</template>
+
+
 <template mode="preproc:expand" priority="5"
           match="lv:question/lv:data[
                    lv:label
