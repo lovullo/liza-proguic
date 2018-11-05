@@ -165,6 +165,7 @@
     <xs:enumeration value="percent" />
     <xs:enumeration value="char" />
     <xs:enumeration value="cvv2" />
+    <xs:enumeration value="checkbox" />
 
     <xs:enumeration value="button" />
     <xs:enumeration value="submit" />
