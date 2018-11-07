@@ -70,7 +70,7 @@
       <xsl:text>1</xsl:text>
     </xsl:if>
 
-    <xsl:if test="@default='no'">
+    <xsl:if test="not( @default='yes' )">
       <xsl:text>0</xsl:text>
     </xsl:if>
   </xsl:template>
