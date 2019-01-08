@@ -2,7 +2,7 @@
 <!--
   The program XML preprocessor
 
-  Copyright (C) 2017 R-T Specialty, LLC.
+  Copyright (C) 2017, 2018, 2019 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 
@@ -66,7 +66,7 @@
   contents of the file are placed in place of the include.
 -->
 <template match="lv:include[ @fragment ]" mode="preproc:include" priority="5">
-  <param name="rel-root" />
+  <param name="rel-root" select="$orig-root" />
 
   <variable name="doc" as="element( lv:program-fragment )"
             select="document( concat( @fragment, '.xml' ), $rel-root )/lv:program-fragment" />
