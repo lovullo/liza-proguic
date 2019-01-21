@@ -601,11 +601,11 @@
   <text>/*dapiinit*/</text>
 
   <!-- current bucket data -->
-  <text>var cdata=bucket.getDataByName('</text>
+  <text>var cdata=diff['</text>
     <value-of select="$qid" />
-  <text>')||diff['</text>
+  <text>']||bucket.getDataByName('</text>
     <value-of select="$qid" />
-  <text>'];</text>
+  <text>');</text>
 
   <choose>
     <!-- combined call -->
