@@ -2,7 +2,7 @@
 <!--
   Group HTML generation
 
-  Copyright (C) 2017 R-T Specialty, LLC.
+  Copyright (C) 2017, 2018 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 
@@ -28,6 +28,7 @@
 
 <!-- supported styles -->
 <xsl:include href="default.xsl"/>
+<xsl:include href="accordion.xsl"/>
 <xsl:include href="table.xsl"/>
 <xsl:include href="sidetable.xsl"/>
 <xsl:include href="collapsetable.xsl"/>

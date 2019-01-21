@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-  Flat group with stacked indexes
+  Accordion group
 
-  Copyright (C) 2018 R-T Specialty, LLC.
+  Copyright (C) 2019 R-T Specialty, LLC.
 
     This file is part of the Liza Program UI Compiler.
 
@@ -26,31 +26,14 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:lv="http://www.lovullo.com">
 
-<xsl:template name="stacked-group"
-              match="/lv:program/lv:step/lv:group[ @style='stacked' ]"
+<xsl:template match="/lv:program/lv:step/lv:group[ @style='accordion' ]"
               mode="group-select"
               priority="2">
-  <xsl:param name="group" select="." />
-  <xsl:param name="class" select="''" />
-
-  <xsl:variable name="prefix" select="@prefix" />
-  <xsl:variable name="columnSuffix"
-                select="lv:prop[@name='columnSuffix']" />
-
-  <div class="stacked-container">
-    <dl class="{@style} {$class}">
-      <dt class="stack-header">
-        <xsl:value-of select="$prefix" />
-        <span class="item-index"></span>
-
-        <xsl:if test="$columnSuffix">
-          <xsl:apply-templates select="$columnSuffix" />
-        </xsl:if>
-      </dt>
-
-      <xsl:apply-templates mode="generate"/>
-    </dl>
-  </div>
+  <!-- this is a collapsable stacked group -->
+  <xsl:call-template name="stacked-group">
+    <xsl:with-param name="group" select="." />
+    <xsl:with-param name="class" select="'liza-collapsable'" />
+  </xsl:call-template>
 </xsl:template>
 
 </xsl:stylesheet>
