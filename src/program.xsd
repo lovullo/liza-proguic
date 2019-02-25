@@ -521,6 +521,13 @@
       </xs:documentation>
     </xs:annotation>
   </xs:attribute>
+  <xs:attribute name="class" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Classes to apply to an element surrounding the generated element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
 </xs:complexType>
 
 <!-- Permits JS within the XML -->

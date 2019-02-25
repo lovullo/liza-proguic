@@ -83,7 +83,15 @@
 
   <xsl:message>Generating step template for <xsl:value-of select="$name"/>...</xsl:message>
 
-  <xsl:apply-templates select="lv:group"/>
+  <div>
+    <xsl:if test="@class">
+      <xsl:attribute name="class">
+        <xsl:value-of select="@class"/>
+      </xsl:attribute>
+    </xsl:if>
+
+    <xsl:apply-templates select="lv:group"/>
+  </div>
 </xsl:template>
 
 
