@@ -59,5 +59,9 @@
   </xsl:if>
 </xsl:template>
 
+<xsl:template match="lv:*[@type='percent']" mode="get-default">
+  <xsl:value-of select="if ( @default ) then @default else '0'" />
+</xsl:template>
+
 </xsl:stylesheet>
 
