@@ -1750,6 +1750,40 @@
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="pre-rate-expiration" type="xs:string" default="0">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Specifies the number of days before an open submission will expire.
+          If set, quotes that have not been rated will lock after the given number of days.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pre-rate-grace-period" type="xs:string" default="0">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Specifies the grace period (in days) between the official submission expiration
+          and the actual submission expiration. When specified, this will be added to
+          `pre-rate-expiration` to determine when to lock a quote.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="post-rate-expiration" type="xs:string" default="0">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Specifies the number of days before a rate will expire.
+          If set, quotes that have been rated will lock after the given number of days.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="post-rate-grace-period" type="xs:string" default="0">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Specifies the grace period (in days) between the official rate expiration
+          and the actual rate expiration. When specified, this will be added to
+          `post-rate-expiration` to determine when to lock a quote.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="c1-import-path" type="xs:string" default="">
       <xs:annotation>
         <xs:documentation xml:lang="en">

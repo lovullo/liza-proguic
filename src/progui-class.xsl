@@ -173,6 +173,7 @@
       <value-of select="if ( @ineligibleLockCount ) then @ineligibleLockCount else '0'" />
       <text>,</text>
     <text>isInternal:false,</text>
+    <text>lockTimeout:</text><call-template name="build-lock-timeout" /><text>,</text>
 
     <!-- determine an appropriate first step id -->
     <text>firstStepId:</text><call-template name="get-fist-step-id" /><text>,</text>
@@ -247,6 +248,33 @@
                                        return st:item( $group/@id ) ) ),
                                    'groups' ) ) ) )" />
   </for-each>
+</template>
+
+
+<!--
+  Generate lock timeout settings
+-->
+<template name="build-lock-timeout">
+
+  <sequence select="st:to-json(
+                      st:dict( (
+                        st:item(
+                          if ( @pre-rate-expiration ) then @pre-rate-expiration else '0',
+                          'preRateExpiration'
+                        ),
+                        st:item(
+                          if ( @pre-rate-grace-period ) then @pre-rate-grace-period else '0',
+                          'preRateGracePeriod'
+                        ),
+                        st:item(
+                          if ( @post-rate-expiration ) then @post-rate-expiration else '0',
+                          'postRateExpiration'
+                        ),
+                        st:item(
+                          if ( @post-rate-grace-period ) then @post-rate-grace-period else '0',
+                          'postRateGracePeriod'
+                        )
+                      ) ) )" />
 </template>
 
 
