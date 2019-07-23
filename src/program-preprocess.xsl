@@ -24,6 +24,7 @@
 -->
 <stylesheet version="2.0"
             xmlns="http://www.w3.org/1999/XSL/Transform"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
             xmlns:lv="http://www.lovullo.com"
             xmlns:assert="http://www.lovullo.com/assert"
             xmlns:preproc="http://www.lovullo.com/program/preprocessor">
@@ -49,6 +50,9 @@
            was originally designed -->
       <apply-templates select="node()" mode="preproc:include">
         <with-param name="rel-root" select="$orig-root" />
+        <with-param name="modifiers" as="element()" tunnel="yes">
+          <lv:none />
+        </with-param>
       </apply-templates>
     </copy>
   </variable>
@@ -74,8 +78,76 @@
   <!-- replace the include node with the children of the fragment, preprocessed -->
   <apply-templates select="$doc/node()" mode="preproc:include">
     <with-param name="rel-root" select="$doc" />
+    <with-param name="modifiers" select="."
+                tunnel="yes" />
   </apply-templates>
 </template>
+
+
+<!--
+  Process question with include modifiers
+
+  <before> and <after> modifiers will have their bodies spliced into the
+  tree before and after this question, respectively.  <modify> nodes with
+  inner <appends> will have their bodies spliced with the children of this
+  node.  See the separate template below for attribute processing.
+-->
+<template mode="preproc:include" priority="3"
+          match="lv:question">
+  <param name="modifiers" as="element()" tunnel="yes" />
+
+  <variable name="id" as="xs:string"
+            select="@id" />
+
+  <sequence select="$modifiers/lv:before[ @question = $id ]/node()" />
+
+  <copy>
+    <apply-templates select="@*, node()" mode="preproc:include" />
+
+    <sequence select="$modifiers/lv:modify[ @question = $id ]
+                        /lv:append/node()" />
+  </copy>
+
+  <sequence select="$modifiers/lv:after[ @question = $id ]/node()" />
+</template>
+
+
+<!--
+  Process question attributes with include modifiers
+
+  Any <modify> node with an <attribute> node matching this attribute will be
+  applied.  If no such modifier is found, no replacement is made.
+
+  Consequently, we cannot apply modifiers for attributes that do not
+  exist.  This limitation is known and there are no plans to accomodate it
+  at this time, since it's unneeded.
+-->
+<template mode="preproc:include" priority="3"
+          match="lv:question/@*">
+  <param name="modifiers" as="element()" tunnel="yes" />
+
+  <variable name="id" as="xs:string"
+            select="parent::lv:question/@id" />
+  <variable name="attr-name" as="xs:string"
+            select="local-name()" />
+
+
+  <variable name="modify"
+            select="$modifiers/lv:modify[ @question = $id ]
+                      /lv:attribute[ @name = $attr-name ]" />
+
+  <choose>
+    <when test="exists( $modify )">
+      <attribute name="{$attr-name}"
+                 select="replace( $modify/@value, '\{\}', . )" />
+    </when>
+
+    <otherwise>
+      <sequence select="." />
+    </otherwise>
+  </choose>
+</template>
+
 
 <template match="element()" mode="preproc:include" priority="1">
   <copy>
@@ -84,7 +156,7 @@
   </copy>
 </template>
 
-<template match="text()|comment()" mode="preproc:include" priority="1">
+<template match="@*|text()|comment()" mode="preproc:include" priority="1">
   <sequence select="." />
 </template>
 
