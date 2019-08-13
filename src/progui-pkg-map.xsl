@@ -74,7 +74,26 @@
 </function>
 
 
-<template match="lvp:question">
+<!-- TODO: some place to indicate that things can be directly represented as
+     numeric would be nice -->
+<!-- TODO: should we support selects with numeric keys? -->
+<template priority="5" match="lvp:question[
+                                @type = 'number'
+                                or @type = 'currency'
+                                or @type = 'dollars'
+                                or @type = 'float'
+                                or @type = 'percent'
+                                or @type = 'year'
+                                or @type = 'zip' ]" >
+  <lvm:map to="ui_q_{@id}">
+    <lvm:from name="{@id}">
+      <lvm:translate key="" value="0" />
+    </lvm:from>
+  </lvm:map>
+</template>
+
+
+<template match="lvp:question" priority="1">
   <lvm:map to="ui_q_{@id}">
     <lvm:from name="{@id}" default="1">
       <lvm:translate key=""  value="0" />
