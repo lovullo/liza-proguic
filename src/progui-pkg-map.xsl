@@ -85,9 +85,27 @@
                                 or @type = 'percent'
                                 or @type = 'year'
                                 or @type = 'zip' ]" >
+
+  <variable name="default" select="if ( @default ) then @default else '0'" />
+
   <lvm:map to="ui_q_{@id}">
     <lvm:from name="{@id}">
-      <lvm:translate key="" value="0" />
+      <lvm:translate key="" value="{$default}" />
+    </lvm:from>
+  </lvm:map>
+</template>
+
+
+<template priority="5" match="lvp:question[ @type = 'select' ]">
+  <variable name="default-option" select="lvp:option[ @default='true' ]" />
+  <variable name="default" select="if ( $default-option ) then
+                                       $default-option
+                                     else
+                                       lvp:option[1]" />
+
+  <lvm:map to="ui_q_{@id}">
+    <lvm:from name="{@id}">
+      <lvm:translate key="" value="{$default/@value}" />
     </lvm:from>
   </lvm:map>
 </template>
