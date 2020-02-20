@@ -458,6 +458,7 @@
   <if test="( string-length( $triggerdata ) > 0 ) or ( string-length( $scriptdata ) > 0 )">
     <value-of select="$eventData" />.<value-of select="$type" />
     <text>=function(trigger_callback,bucket){</text>
+    <text>var diff={};</text>
     <value-of select="$triggerdata" />
     <value-of select="$scriptdata" />
     <text>};</text>
